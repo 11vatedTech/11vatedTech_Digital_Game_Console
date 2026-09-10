@@ -1,0 +1,11 @@
+{
+  "schema": "dc.profile/1",
+  "id": "DCX-VRR",
+  "version": 1,
+  "kind": "session",
+  "title": "Session experience: VRR actively proven on the current presentation path (ADR-0022)",
+  "requires": [
+    { "host_profile": "DCP-2026-LOWLATENCY" },
+    { "path": "display.vrr_proven", "value": 1 }
+  ]
+}

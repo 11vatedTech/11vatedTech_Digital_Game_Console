@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://11vated.tech/schemas/dc.profile/1",
+  "title": "Digital Console Profile definition (host DCP + session DCX, ADR-0022)",
+  "description": "Machine-readable profile constraints. DCP-* (kind=host) resolve only against measured host capability. DCX-* (kind=session) may reference host profiles, display-mode predicates, and presentation truth. All numeric operators are '>=' (inclusive); unmeasured domains fail derivation with CAPABILITY_NOT_MEASURED, never a pass.",
+  "type": "object",
+  "required": ["schema", "id", "version", "kind", "title", "requires"],
+  "properties": {
+    "schema": { "const": "dc.profile/1" },
+    "id": { "type": "string", "pattern": "^DC[PX]-[0-9]{4}-[A-Z0-9_]+$" },
+    "version": { "type": "integer", "minimum": 1 },
+    "kind": { "enum": ["host", "session"] },
+    "supersedes": { "type": "string" },
+    "title": { "type": "string", "minLength": 1 },
+    "requires": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["path", "value"],
+            "properties": {
+              "path": {
+                "type": "string",
+                "enum": [
+                  "cpu.game_thread_score", "cpu.sustained_score", "cpu.single_thread_score", "cpu.worker_score",
+                  "gpu.raster_score", "gpu.compute_score", "gpu.rt_score", "gpu.sustained_score",
+                  "gpu.copy_gbps", "gpu.matrix_score",
+                  "memory.bandwidth_gbps", "memory.vram_bytes", "memory.ram_bytes",
+                  "storage.read_seq_mbps", "storage.latency_us_p99",
+                  "display.min_refresh_hz", "display.hdr_active", "display.vrr_proven"
+                ]
+              },
+              "value": { "type": "number", "minimum": 0 }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["host_profile"],
+            "properties": {
+              "host_profile": { "type": "string", "pattern": "^DCP-" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["mode"],
+            "properties": {
+              "mode": {
+                "type": "object",
+                "required": ["min_width", "min_height", "min_refresh_hz"],
+                "properties": {
+                  "min_width": { "type": "integer", "minimum": 1 },
+                  "min_height": { "type": "integer", "minimum": 1 },
+                  "min_refresh_hz": { "type": "number", "exclusiveMinimum": 0 }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

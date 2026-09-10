@@ -1,0 +1,32 @@
+{
+  "schema": "dc.qualification-aggregate/1",
+  "policy": "dc.policy/1",
+  "runs_considered": 8,
+  "runs": [
+    {"run_id": "2026-09-07T23_56_37Z_quick", "mode": "quick", "started_at": "2026-09-07T23:56:37Z", "sustained_valid": true},
+    {"run_id": "2026-09-08T00_09_56Z_quick", "mode": "quick", "started_at": "2026-09-08T00:09:56Z", "sustained_valid": true},
+    {"run_id": "2026-09-08T05_36_52Z_quick", "mode": "quick", "started_at": "2026-09-08T05:36:52Z", "sustained_valid": false},
+    {"run_id": "2026-09-10T01_10_07Z_quick", "mode": "quick", "started_at": "2026-09-10T01:10:07Z", "sustained_valid": true},
+    {"run_id": "2026-09-10T01_31_11Z_quick", "mode": "quick", "started_at": "2026-09-10T01:31:11Z", "sustained_valid": true},
+    {"run_id": "2026-09-10T01_42_58Z_standard", "mode": "standard", "started_at": "2026-09-10T01:42:58Z", "sustained_valid": false},
+    {"run_id": "2026-09-10T01_48_35Z_quick", "mode": "quick", "started_at": "2026-09-10T01:48:35Z", "sustained_valid": true},
+    {"run_id": "2026-09-10T02_11_25Z_standard", "mode": "standard", "started_at": "2026-09-10T02:11:25Z", "sustained_valid": true}
+  ],
+  "domains": {
+    "cpu.game-thread": {"unit": "ops/s", "median": 116881048.2803, "min": 73770034.0037, "max": 162919250.7808, "p10": 83216411.6860, "p90": 160013296.3209, "cv": 0.2776, "valid": 8, "aborted": 0, "unavailable": 0},
+    "cpu.game-thread.sustained": {"unit": "ops/s", "median": 139871249.6368, "min": 72644146.3190, "max": 179552378.6845, "p10": 83310597.6296, "p90": 174269364.0186, "cv": 0.3236, "valid": 6, "aborted": 2, "unavailable": 0},
+    "cpu.single-thread": {"unit": "ops/s", "median": 121847594.5941, "min": 75466468.6354, "max": 171269797.7708, "p10": 95552057.7784, "p90": 157746114.0326, "cv": 0.2338, "valid": 8, "aborted": 0, "unavailable": 0},
+    "cpu.worker": {"unit": "ops/s", "median": 168611318.6507, "min": 99288055.7111, "max": 257731884.5817, "p10": 122830697.4202, "p90": 237601368.7266, "cv": 0.3083, "valid": 8, "aborted": 0, "unavailable": 0},
+    "gpu.compute": {"unit": "MACs/ms", "median": 3239644024.8194, "min": 2751071400.9792, "max": 3316160115.1091, "p10": 3014194055.9005, "p90": 3316060950.7302, "cv": 0.0591, "valid": 8, "aborted": 0, "unavailable": 0},
+    "gpu.copy": {"unit": "GB/s", "median": 188.0517, "min": 187.4509, "max": 195.1225, "p10": 187.5144, "p90": 194.8733, "cv": 0.0173, "valid": 8, "aborted": 0, "unavailable": 0},
+    "gpu.raster": {"unit": "px/ms", "median": 628870407.1939, "min": 553564136.3635, "max": 703212038.1666, "p10": 558389856.4458, "p90": 701125556.6096, "cv": 0.1175, "valid": 8, "aborted": 0, "unavailable": 0},
+    "gpu.raster.sustained": {"unit": "px/ms", "median": 586990357.3797, "min": 467590617.3525, "max": 593699445.2535, "p10": 474709706.3982, "p90": 592603871.1062, "cv": 0.0961, "valid": 8, "aborted": 0, "unavailable": 0},
+    "gpu.rt_inline": {"unit": "rays/ms", "median": 0.0000, "min": 0.0000, "max": 0.0000, "p10": 0.0000, "p90": 0.0000, "cv": 0.0000, "valid": 0, "aborted": 8, "unavailable": 0},
+    "gpu.rt_pipeline": {"unit": "rays/ms", "median": 0.0000, "min": 0.0000, "max": 0.0000, "p10": 0.0000, "p90": 0.0000, "cv": 0.0000, "valid": 0, "aborted": 0, "unavailable": 7},
+    "memory.bandwidth": {"unit": "GB/s", "median": 26.0551, "min": 19.6445, "max": 30.8695, "p10": 21.2436, "p90": 29.0746, "cv": 0.1487, "valid": 8, "aborted": 0, "unavailable": 0},
+    "memory.pressure": {"unit": "bytes", "median": 32212254720.0000, "min": 15569256448.0000, "max": 32212254720.0000, "p10": 24964497408.0000, "p90": 32212254720.0000, "cv": 0.1959, "valid": 8, "aborted": 0, "unavailable": 0},
+    "storage.random": {"unit": "MB/s", "median": 10.1896, "min": 3.4673, "max": 11.6217, "p10": 4.4976, "p90": 11.3291, "cv": 0.3613, "valid": 8, "aborted": 0, "unavailable": 0},
+    "storage.seq": {"unit": "MB/s", "median": 2054.4188, "min": 1085.5472, "max": 2711.2166, "p10": 1345.4147, "p90": 2539.7171, "cv": 0.2638, "valid": 8, "aborted": 0, "unavailable": 0},
+    "storage.sustained": {"unit": "MB/s", "median": 1956.0967, "min": 1427.8356, "max": 2830.6047, "p10": 1608.8539, "p90": 2435.8876, "cv": 0.2154, "valid": 8, "aborted": 0, "unavailable": 0}
+  }
+}

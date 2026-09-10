@@ -1,0 +1,24 @@
+{
+  "schema": "dc.profile/1",
+  "id": "DCP-2026-HIGHIO",
+  "version": 1,
+  "title": "High-IO streaming profile (DirectStorage-class asset pipelines)",
+  "requires": [
+    {
+      "path": "storage.read_seq_mbps",
+      "value": 1200
+    },
+    {
+      "path": "storage.latency_us_p99",
+      "value": 2000
+    },
+    {
+      "path": "gpu.copy_gbps",
+      "value": 100
+    },
+    {
+      "path": "memory.ram_bytes",
+      "value": 17179869184
+    }
+  ]
+}

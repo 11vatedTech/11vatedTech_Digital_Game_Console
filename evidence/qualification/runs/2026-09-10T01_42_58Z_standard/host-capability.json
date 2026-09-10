@@ -1,0 +1,928 @@
+{
+"schema": "dc.host-capability/2",
+"host_id": "6567d5ce-a873-4a06-ba78-3897a7af253f",
+"generated_utc": "2026-09-10T01:42:56Z",
+"build": {
+  "git_hash": "unknown",
+  "build_config": "Release",
+  "runtime_version": "0.1.0"
+},
+"os": {
+  "family": "windows",
+  "version": "10.0",
+  "build": 26200,
+  "edition": "Core"
+},
+"cpu": {
+  "arch": "x86_64",
+  "model_name": "Intel(R) Core(TM) Ultra 9 275HX",
+  "physical_cores": 23,
+  "logical_cores": 24,
+  "base_clock_hz": 3072000000,
+  "max_clock_hz": 0,
+  "game_thread_score": 87264859.264,
+  "worker_score": 132920401.01,
+  "sustained_score": 0
+},
+"gpu": {
+  "vendor": "nvidia",
+  "model_name": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+  "driver_version": "32.0.16.1078",
+  "api": ["d3d12","vulkan"
+  ],
+  "d3d12": {
+    "available": true,
+    "feature_level": "12_2",
+    "dedicated_vram_bytes": 12524191744,
+    "shared_vram_bytes": 19229571072,
+    "raytracing_tier": 1.2,
+    "mesh_shader": true,
+    "sampler_feedback": true,
+    "directstorage_gpu_decompression": false
+  },
+  "vulkan": {
+    "available": true,
+    "status": "ok",
+    "api_version": "1.4.341",
+    "device_name": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+    "ray_query": true,
+    "mesh_shader": true,
+    "queue_families": 6,
+    "memory_heaps": 2
+  },
+  "vram_bytes": 12524191744,
+  "raster_score": 561037879.726,
+  "compute_score": 3283058488.154,
+  "rt_score": 0,
+  "matrix_score": 0
+},
+"memory": {
+  "system_bytes": 33736089600,
+  "available_bytes": 21752139776,
+  "bandwidth_score": 26378.475,
+  "pressure_safe_bytes": 32212254720
+},
+"storage": [{
+    "id": "disk0",
+    "class": "DC_STORAGE_NVME_BASE",
+    "media_type": "Micron_2500_MTFDKBA1T0QGN",
+    "bus_type": "NVMe",
+    "capacity_bytes": 986264367104,
+    "free_bytes": 219197431808,
+    "read_seq_mbps": 2466.217,
+    "read_random_score": 7.199,
+    "latency_us_p50": 0,
+    "latency_us_p95": 376.1,
+    "latency_us_p99": 765.2,
+    "queue_depth_tested": 0,
+    "sustained_streaming_score": 1985.027,
+    "gpu_decompression": false
+  }
+],
+"display": [{
+    "id": "display0",
+    "name": "Intel(R) Graphics",
+    "primary": true,
+    "active": true,
+    "resolution": {"width": 2560, "height": 1600},
+    "desktop_refresh_hz": 240,
+    "modes": [{
+        "width": 2560,
+        "height": 1600,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 2560,
+        "height": 1600,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 640,
+        "height": 480,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 640,
+        "height": 480,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 640,
+        "height": 480,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 640,
+        "height": 480,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 800,
+        "height": 600,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 800,
+        "height": 600,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 800,
+        "height": 600,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 800,
+        "height": 600,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1024,
+        "height": 768,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1024,
+        "height": 768,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1024,
+        "height": 768,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1024,
+        "height": 768,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1152,
+        "height": 864,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1152,
+        "height": 864,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1152,
+        "height": 864,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1152,
+        "height": 864,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 600,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 600,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 600,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 600,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 720,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 720,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 720,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 720,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 768,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 768,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 768,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 768,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 800,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 800,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 800,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 800,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 960,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 960,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 960,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 960,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 1024,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 1024,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 1024,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1280,
+        "height": 1024,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1360,
+        "height": 768,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1360,
+        "height": 768,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1360,
+        "height": 768,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1360,
+        "height": 768,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1366,
+        "height": 768,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1366,
+        "height": 768,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1366,
+        "height": 768,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1366,
+        "height": 768,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1400,
+        "height": 1050,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1400,
+        "height": 1050,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1400,
+        "height": 1050,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1400,
+        "height": 1050,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1440,
+        "height": 900,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1440,
+        "height": 900,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1440,
+        "height": 900,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1440,
+        "height": 900,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1600,
+        "height": 900,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1600,
+        "height": 900,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1600,
+        "height": 900,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1600,
+        "height": 900,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1600,
+        "height": 1200,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1600,
+        "height": 1200,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1600,
+        "height": 1200,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1600,
+        "height": 1200,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1680,
+        "height": 1050,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1680,
+        "height": 1050,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1680,
+        "height": 1050,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1680,
+        "height": 1050,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1792,
+        "height": 1344,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1792,
+        "height": 1344,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1792,
+        "height": 1344,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1792,
+        "height": 1344,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1856,
+        "height": 1392,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1856,
+        "height": 1392,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1856,
+        "height": 1392,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1856,
+        "height": 1392,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1920,
+        "height": 1080,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1920,
+        "height": 1080,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1920,
+        "height": 1080,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1920,
+        "height": 1080,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1920,
+        "height": 1200,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1920,
+        "height": 1200,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1920,
+        "height": 1200,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1920,
+        "height": 1200,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1920,
+        "height": 1440,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1920,
+        "height": 1440,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 1920,
+        "height": 1440,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 1920,
+        "height": 1440,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 2048,
+        "height": 1152,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 2048,
+        "height": 1152,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 2048,
+        "height": 1152,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 2048,
+        "height": 1152,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 2048,
+        "height": 1536,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 2048,
+        "height": 1536,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 2048,
+        "height": 1536,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 2048,
+        "height": 1536,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 2560,
+        "height": 1440,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 2560,
+        "height": 1440,
+        "refresh_numerator": 240,
+        "refresh_denominator": 1,
+        "refresh_hz": 240,
+        "bits_per_color": 32
+      },{
+        "width": 2560,
+        "height": 1440,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      },{
+        "width": 2560,
+        "height": 1440,
+        "refresh_numerator": 60,
+        "refresh_denominator": 1,
+        "refresh_hz": 60,
+        "bits_per_color": 32
+      }
+    ],
+    "hdr": {
+      "advanced_color_supported": false,
+      "advanced_color_active": false,
+      "user_enabled": false,
+      "wide_color_gamut": false,
+      "metadata_available": false,
+      "advanced_color_kind": "SDR",
+      "bits_per_color": 8,
+      "min_luminance_nits": 0,
+      "max_luminance_nits": 0,
+      "max_full_frame_luminance_nits": 0,
+      "sdr_white_level_nits": 0,
+      "metadata_formats": [
+      ],
+      "red_primary": [0,0
+      ],
+      "green_primary": [0,0
+      ],
+      "blue_primary": [0,0
+      ],
+      "white_point": [0,0
+      ]
+    },
+    "vrr": {
+      "supported": false,
+      "path_compatible": true,
+      "actively_proven": true,
+      "min_refresh_hz": 0,
+      "max_refresh_hz": 0
+    }
+  }
+],
+"audio": [{
+    "id": "{0.0.0.00000000}.{d1d9adc8-0c69-48e9-99bc-2b9dacb420e9}",
+    "name": "Speakers (Realtek(R) Audio)",
+    "kind": "analog",
+    "default_output": true,
+    "channels": 2,
+    "sample_rates_hz": [48000
+    ],
+    "spatial_capable": false,
+    "microphone": false
+  }
+],
+"input": [
+],
+"thermal": {
+  "sustained_profile_valid": false,
+  "power_scheme": "",
+  "note": "discovery-only; sustained qualification pending (microbenchmarks)"
+},
+"trust": {
+  "secure_boot": false,
+  "tpm": true,
+  "tpm_version": "2.0",
+  "measured_boot_available": true
+},
+"directstorage": {
+  "runtime_available": false,
+  "version": "",
+  "gpu_decompression_supported": false,
+  "gdeflate_supported": false,
+  "zstd_status": "unavailable"
+},
+"qualification": {
+  "measured": true,
+  "mode": "standard",
+  "sustained_valid": false,
+  "timestamp_utc": "2026-09-10T01:42:58Z"
+},
+"profiles_claimed": [{
+    "id": "DCP-2026-HDR",
+    "version": 2
+  },{
+    "id": "DCP-2026-RENDER-UHD120",
+    "version": 2
+  },{
+    "id": "DCP-2026-RENDER-UHD60",
+    "version": 2
+  }
+],
+"profiles_rejected": [{
+    "id": "DCP-2026-BASE",
+    "reasons": ["CAPABILITY_NOT_MEASURED"
+    ]
+  },{
+    "id": "DCP-2026-HIGHIO",
+    "reasons": ["STORAGE_LATENCY_ABOVE_REQUIREMENT"
+    ]
+  },{
+    "id": "DCP-2026-LOWLATENCY",
+    "reasons": ["STORAGE_LATENCY_ABOVE_REQUIREMENT"
+    ]
+  },{
+    "id": "DCP-2026-RT1",
+    "reasons": ["CAPABILITY_NOT_MEASURED"
+    ]
+  },{
+    "id": "DCP-2026-RT2",
+    "reasons": ["CAPABILITY_NOT_MEASURED","GPU_COMPUTE_SCORE_BELOW_REQUIREMENT"
+    ]
+  }
+],
+"session_profiles_claimed": [
+],
+"session_profiles_rejected": [{
+    "id": "DCX-HDR",
+    "reasons": ["HDR_INACTIVE"
+    ]
+  },{
+    "id": "DCX-UHD120",
+    "reasons": ["DISPLAY_MODE_UNAVAILABLE"
+    ]
+  },{
+    "id": "DCX-UHD60",
+    "reasons": ["DISPLAY_MODE_UNAVAILABLE"
+    ]
+  },{
+    "id": "DCX-VRR",
+    "reasons": ["HOST_PROFILE_UNSATISFIED"
+    ]
+  }
+]
+}

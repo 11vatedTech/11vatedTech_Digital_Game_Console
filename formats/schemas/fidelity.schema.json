@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://11vated.tech/schemas/dc.fidelity/1",
+  "title": "Digital Console Fidelity Contract (fidelity.json)",
+  "description": "Title-authored scalable quality domains per DC-CANON-001 section 17.2. Costs are measured by the offline Fidelity Compiler (Stage A), not guessed.",
+  "type": "object",
+  "required": ["schema", "title_id", "domains"],
+  "properties": {
+    "schema": { "const": "dc.fidelity/1" },
+    "title_id": { "type": "string" },
+    "domains": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["domain", "states", "transition", "criticality"],
+        "properties": {
+          "domain": { "type": "string", "minLength": 1 },
+          "states": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["id", "utility"],
+              "properties": {
+                "id": { "type": "string" },
+                "utility": { "type": "number", "minimum": 0, "maximum": 1 },
+                "gpu_ms": { "type": "number", "minimum": 0 },
+                "cpu_ms": { "type": "number", "minimum": 0 },
+                "vram_mb": { "type": "number", "minimum": 0 },
+                "io_mbps": { "type": "number", "minimum": 0 }
+              }
+            }
+          },
+          "transition": { "enum": ["INSTANT_SAFE", "HYSTERETIC_RUNTIME", "CAMERA_CUT_ONLY", "SCENE_BOUNDARY", "RELOAD_REQUIRED", "RESTART_REQUIRED"] },
+          "criticality": { "enum": ["visual", "simulation", "gameplay", "audio"] },
+          "dynamic": { "type": "boolean", "default": true, "description": "false = selected only at launch (e.g. RESTART_REQUIRED domains)" }
+        }
+      }
+    },
+    "envelopes": {
+      "type": "array",
+      "description": "Declared certification targets, e.g. 60 Hz native, 120 Hz native, HDR, RT.",
+      "items": {
+        "type": "object",
+        "required": ["id", "target_hz"],
+        "properties": {
+          "id": { "type": "string" },
+          "target_hz": { "type": "number" },
+          "frame_time_budget_ms": { "type": "number" },
+          "hdr": { "type": "boolean" },
+          "ray_tracing": { "type": "boolean" },
+          "min_vram_mb": { "type": "number" }
+        }
+      }
+    },
+    "player_intents": {
+      "type": "array",
+      "items": { "enum": ["responsive", "balanced", "cinematic"] },
+      "description": "Optional high-level experience preferences accepted by VFR; never PC graphics toggles (C6)."
+    }
+  }
+}

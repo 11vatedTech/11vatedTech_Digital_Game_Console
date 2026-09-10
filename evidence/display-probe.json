@@ -1,0 +1,15 @@
+{
+  "schema": "dc.display-probe/1",
+  "device_ok": true,
+  "vrr_capable_environment": true,
+  "vrr_path_compatible": false,
+  "vrr_actively_proven": false,
+  "present_vsync_ok": false,
+  "stats_available": false,
+  "avg_present_ms": 0.000000,
+  "observed_min_refresh_hz": 0.000000,
+  "observed_max_refresh_hz": 0.000000,
+  "variant": "",
+  "variant_attempts": ["flip-discard:3:tearing rejected hr=0x887A0001","flip-discard:3 rejected hr=0x887A0001","flip-discard:2 rejected hr=0x887A0001","flip-sequential:2 rejected hr=0x887A0001","composition rejected hr=0x887A0001"],
+  "note": "flip swap chain creation failed hr=0x80004005 attempts: flip-discard:3:tearing rejected hr=0x887A0001; flip-discard:3 rejected hr=0x887A0001; flip-discard:2 rejected hr=0x887A0001; flip-sequential:2 rejected hr=0x887A0001; composition rejected hr=0x887A0001; "
+}

@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://11vated.tech/schemas/dc.lifecycle/1",
+  "title": "Digital Console Lifecycle Contract (lifecycle.json)",
+  "description": "Declared lifecycle/suspend behavior of a native .11g title per DC-CANON-001 sections 16 and 22.",
+  "type": "object",
+  "required": ["schema", "title_id", "suspend_acknowledgement_deadline_ms"],
+  "properties": {
+    "schema": { "const": "dc.lifecycle/1" },
+    "title_id": { "type": "string" },
+    "suspend_acknowledgement_deadline_ms": { "type": "integer", "minimum": 100 },
+    "quick_resume_tier": { "enum": ["QR0", "QR1", "QR2", "QR3"], "description": "Claimed tier; certification verifies the claim (ADR-0012)." },
+    "display_change_handling": { "enum": ["none", "recreate_swapchain", "full_reinit"] },
+    "audio_route_change_handling": { "enum": ["none", "hot_switch"] },
+    "user_switching": { "type": "boolean" },
+    "network_reacquisition": { "type": "boolean" },
+    "memory_pressure_response": { "enum": ["none", "reduce_cache", "full_release"] },
+    "checkpoint": {
+      "type": "object",
+      "properties": {
+        "format_version": { "type": "string" },
+        "max_checkpoint_bytes": { "type": "integer", "minimum": 0 },
+        "flushes_transactional_saves": { "type": "boolean" }
+      }
+    },
+    "exit_behavior": {
+      "type": "object",
+      "properties": {
+        "honors_exit_request": { "type": "boolean" },
+        "flushes_saves": { "type": "boolean" },
+        "stops_network": { "type": "boolean" },
+        "releases_devices": { "type": "boolean" },
+        "no_orphan_children": { "type": "boolean" }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{"session":"sess-20260910T013450Z","from":"SESSION_OFF","to":"SESSION_STARTING","reason":"boot_sequence","monotonic_ns":200,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T013450Z","from":"SESSION_STARTING","to":"HOST_VALIDATING","reason":"boot_sequence","monotonic_ns":253000,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T013450Z","from":"HOST_VALIDATING","to":"SESSION_CAPABILITIES_RESOLVING","reason":"boot_sequence","monotonic_ns":292600,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T013450Z","from":"SESSION_CAPABILITIES_RESOLVING","to":"INPUT_ACQUIRING","reason":"boot_sequence","monotonic_ns":317100,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T013450Z","from":"INPUT_ACQUIRING","to":"SHELL_STARTING","reason":"boot_sequence","monotonic_ns":1347300,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T013450Z","from":"SHELL_STARTING","to":"SHELL_ACTIVE","reason":"boot_sequence","monotonic_ns":1367000,"correlation":1,"timed_out":false}
+{"session":"","from":"SHELL_ACTIVE","to":"TITLE_REQUESTED","reason":"requested","monotonic_ns":19193000,"correlation":1,"timed_out":false}
+{"session":"","from":"TITLE_REQUESTED","to":"TITLE_VALIDATING","reason":"requested","monotonic_ns":19209600,"correlation":1,"timed_out":false}
+{"session":"","from":"TITLE_VALIDATING","to":"TITLE_STARTING","reason":"requested","monotonic_ns":19372600,"correlation":1,"timed_out":false}
+{"session":"","from":"TITLE_STARTING","to":"TITLE_ACTIVE","reason":"requested","monotonic_ns":26556600,"correlation":1,"timed_out":false}
+{"session":"","from":"TITLE_ACTIVE","to":"TITLE_STOPPING","reason":"user_exit","monotonic_ns":1704028500,"correlation":2,"timed_out":false}
+{"session":"","from":"TITLE_STOPPING","to":"SHELL_RECOVERING","reason":"user_exit","monotonic_ns":1704100700,"correlation":2,"timed_out":false}
+{"session":"","from":"SHELL_RECOVERING","to":"SHELL_ACTIVE","reason":"user_exit","monotonic_ns":1704122500,"correlation":2,"timed_out":false}
+{"session":"sess-20260910T013450Z","from":"SHELL_ACTIVE","to":"SESSION_EXIT","reason":"user_exit","monotonic_ns":1693305500,"correlation":2,"timed_out":false}

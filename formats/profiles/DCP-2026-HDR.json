@@ -1,0 +1,10 @@
+{
+  "schema": "dc.profile/1",
+  "id": "DCP-2026-HDR",
+  "version": 2,
+  "kind": "host",
+  "title": "Host HDR render capability (pipeline-ready; display state moved to DCX-HDR per ADR-0022)",
+  "requires": [
+    { "path": "gpu.raster_score", "value": 300000000 }
+  ]
+}

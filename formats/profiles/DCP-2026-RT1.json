@@ -1,0 +1,20 @@
+{
+  "schema": "dc.profile/1",
+  "id": "DCP-2026-RT1",
+  "version": 1,
+  "title": "Ray tracing tier 1 profile (DXR 1.1-class entry)",
+  "requires": [
+    {
+      "path": "gpu.rt_score",
+      "value": 25000000
+    },
+    {
+      "path": "gpu.sustained_score",
+      "value": 250000000
+    },
+    {
+      "path": "memory.vram_bytes",
+      "value": 6442450944
+    }
+  ]
+}

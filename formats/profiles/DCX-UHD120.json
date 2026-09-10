@@ -1,0 +1,11 @@
+{
+  "schema": "dc.profile/1",
+  "id": "DCX-UHD120",
+  "version": 1,
+  "kind": "session",
+  "title": "Session experience: UHD120 delivered on the current display (ADR-0022)",
+  "requires": [
+    { "host_profile": "DCP-2026-RENDER-UHD120" },
+    { "mode": { "min_width": 3840, "min_height": 2160, "min_refresh_hz": 120 } }
+  ]
+}

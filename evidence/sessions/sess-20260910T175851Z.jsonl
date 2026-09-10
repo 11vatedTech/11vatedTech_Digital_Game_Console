@@ -1,0 +1,6 @@
+{"session":"sess-20260910T175851Z","from":"SESSION_OFF","to":"SESSION_STARTING","reason":"boot_sequence","monotonic_ns":100,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T175851Z","from":"SESSION_STARTING","to":"HOST_VALIDATING","reason":"boot_sequence","monotonic_ns":206200,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T175851Z","from":"HOST_VALIDATING","to":"SESSION_CAPABILITIES_RESOLVING","reason":"boot_sequence","monotonic_ns":234600,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T175851Z","from":"SESSION_CAPABILITIES_RESOLVING","to":"INPUT_ACQUIRING","reason":"boot_sequence","monotonic_ns":251800,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T175851Z","from":"INPUT_ACQUIRING","to":"SHELL_STARTING","reason":"boot_sequence","monotonic_ns":1968400,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T175851Z","from":"SHELL_STARTING","to":"SHELL_ACTIVE","reason":"boot_sequence","monotonic_ns":2000000,"correlation":1,"timed_out":false}

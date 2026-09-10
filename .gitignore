@@ -1,0 +1,14 @@
+build/
+build-*/
+out/
+.cache/
+.vs/
+.vscode/
+*.o
+*.obj
+*.exe.tmp
+evidence/local/
+*.log
+.DS_Store
+Thumbs.db
+.freebuff/

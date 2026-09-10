@@ -1,0 +1,14 @@
+{
+  "schema": "dc.profile/1",
+  "id": "DCP-2026-RENDER-UHD120",
+  "version": 2,
+  "kind": "host",
+  "supersedes": "DCP-2026-4K120",
+  "title": "Host render capability: UHD120 reference workload (ADR-0022 — no display requirement)",
+  "requires": [
+    { "path": "gpu.raster_score", "value": 500000000 },
+    { "path": "gpu.sustained_score", "value": 350000000 },
+    { "path": "memory.vram_bytes", "value": 8589934592 },
+    { "path": "cpu.game_thread_score", "value": 50000000 }
+  ]
+}

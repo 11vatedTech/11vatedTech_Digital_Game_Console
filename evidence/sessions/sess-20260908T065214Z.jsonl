@@ -1,0 +1,10 @@
+{"session":"sess-20260908T065214Z","from":"SESSION_OFF","to":"SESSION_STARTING","reason":"boot_sequence","monotonic_ns":0,"correlation":1,"timed_out":false}
+{"session":"sess-20260908T065214Z","from":"SESSION_STARTING","to":"HOST_VALIDATING","reason":"boot_sequence","monotonic_ns":0,"correlation":1,"timed_out":false}
+{"session":"sess-20260908T065214Z","from":"HOST_VALIDATING","to":"SESSION_CAPABILITIES_RESOLVING","reason":"boot_sequence","monotonic_ns":0,"correlation":1,"timed_out":false}
+{"session":"sess-20260908T065214Z","from":"SESSION_CAPABILITIES_RESOLVING","to":"INPUT_ACQUIRING","reason":"boot_sequence","monotonic_ns":0,"correlation":1,"timed_out":false}
+{"session":"sess-20260908T065214Z","from":"INPUT_ACQUIRING","to":"SHELL_STARTING","reason":"boot_sequence","monotonic_ns":0,"correlation":1,"timed_out":false}
+{"session":"sess-20260908T065214Z","from":"SHELL_STARTING","to":"SHELL_ACTIVE","reason":"boot_sequence","monotonic_ns":0,"correlation":1,"timed_out":false}
+{"session":"sess-20260908T065214Z","from":"SHELL_ACTIVE","to":"TITLE_REQUESTED","reason":"requested","monotonic_ns":0,"correlation":1,"timed_out":false}
+{"session":"sess-20260908T065214Z","from":"TITLE_REQUESTED","to":"TITLE_VALIDATING","reason":"requested","monotonic_ns":0,"correlation":1,"timed_out":false}
+{"session":"sess-20260908T065214Z","from":"TITLE_VALIDATING","to":"TITLE_STARTING","reason":"requested","monotonic_ns":0,"correlation":1,"timed_out":false}
+{"session":"sess-20260908T065214Z","from":"TITLE_STARTING","to":"TITLE_ACTIVE","reason":"requested","monotonic_ns":0,"correlation":1,"timed_out":false}

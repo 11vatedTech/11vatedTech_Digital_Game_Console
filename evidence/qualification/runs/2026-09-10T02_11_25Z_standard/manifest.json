@@ -1,0 +1,14 @@
+{
+  "schema": "dc.qualification-run/1",
+  "run_id": "2026-09-10T02_11_25Z_standard",
+  "mode": "standard",
+  "started_at_utc": "2026-09-10T02:11:25Z",
+  "runtime_version": "0.1.0",
+  "os": "windows 10.0 build 26200",
+  "gpu": "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+  "gpu_driver": "32.0.16.1078",
+  "sustained_valid": true,
+  "benchmarks": 15,
+  "host_profiles_claimed": 4,
+  "session_profiles_claimed": 0
+}

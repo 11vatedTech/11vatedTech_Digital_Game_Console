@@ -1,0 +1,12 @@
+{
+  "schema": "dc.profile/1",
+  "id": "DCP-2026-LOWLATENCY",
+  "version": 2,
+  "kind": "host",
+  "title": "Host low-latency capability (responsive CPU/GPU; VRR state moved to DCX-VRR per ADR-0022)",
+  "requires": [
+    { "path": "cpu.game_thread_score", "value": 50000000 },
+    { "path": "gpu.raster_score", "value": 300000000 },
+    { "path": "storage.latency_us_p99", "value": 1000 }
+  ]
+}

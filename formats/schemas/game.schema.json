@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://11vated.tech/schemas/dc.game/1",
+  "title": "Digital Console Native Game Manifest (game.json)",
+  "description": "Native .11g title manifest per DC-CANON-001 section 15.3. Signed as part of package metadata.",
+  "type": "object",
+  "required": ["schema", "id", "version", "name", "publisher", "entrypoints", "required_profiles", "controller_required", "offline_launch"],
+  "properties": {
+    "schema": { "const": "dc.game/1" },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*(\\.[a-z0-9-]+)+$" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "name": { "type": "string", "minLength": 1 },
+    "publisher": { "type": "string" },
+    "entrypoints": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "enum": ["windows-x64", "consoleos-x64"] },
+      "additionalProperties": { "type": "string" }
+    },
+    "required_profiles": { "type": "array", "items": { "type": "string", "pattern": "^DCP-" } },
+    "optional_profiles": { "type": "array", "items": { "type": "string", "pattern": "^DCP-" } },
+    "controller_required": { "type": "boolean" },
+    "offline_launch": { "type": "boolean" },
+    "content_rating": { "type": "string" },
+    "localization": { "type": "array", "items": { "type": "string" } },
+    "accessibility": {
+      "type": "object",
+      "properties": {
+        "text_scaling": { "type": "boolean" },
+        "colorblind_modes": { "type": "array", "items": { "type": "string" } },
+        "subtitles": { "type": "boolean" },
+        "remapping": { "type": "boolean" },
+        "reduced_motion": { "type": "boolean" }
+      }
+    },
+    "mods": { "enum": ["disabled", "signed_only", "user_local", "sandboxed_extension_api"] },
+    "network": {
+      "type": "object",
+      "properties": {
+        "permissions": { "type": "array", "items": { "enum": ["network.internet.client", "network.lan.client", "network.lan.server"] } }
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "title_id": "com.11vated.samples.native-minimal",
+  "name": "Native Minimal (DK0-M2)",
+  "version": "0.0.1",
+  "entrypoint": "build/Release/dc-sample-native-minimal.exe",
+  "required_host_profiles": ["DCP-2026-BASE"],
+  "required_session_profiles": [],
+  "controller_required": false,
+  "offline_launch": true
+}

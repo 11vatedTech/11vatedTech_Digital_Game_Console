@@ -1,0 +1,12 @@
+{
+  "schema": "dc.session-profiles/1",
+  "run_id": "2026-09-10T01_48_35Z_quick",
+  "claimed": [
+  ],
+  "rejected": [
+    {"id": "DCX-HDR", "reasons": ["HDR_INACTIVE"]},
+    {"id": "DCX-UHD120", "reasons": ["DISPLAY_MODE_UNAVAILABLE"]},
+    {"id": "DCX-UHD60", "reasons": ["DISPLAY_MODE_UNAVAILABLE"]},
+    {"id": "DCX-VRR", "reasons": ["HOST_PROFILE_UNSATISFIED"]}
+  ]
+}

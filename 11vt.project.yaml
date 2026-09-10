@@ -1,0 +1,104 @@
+# 11vatedTech project governance manifest
+project:
+  id: 11vatedtech-digital-console
+  name: 11vated Digital Console
+  owner: 11vatedTech
+  type: product
+  created: 2026-09-06
+  canon:
+    - docs/canon/DC-CANON-001.md
+    - docs/canon/DC-BLUEPRINT-001.md
+
+lifecycle:
+  phase: PHASE-1-DEVKIT0-HOST-FOUNDATION
+  phase_completed:
+    - Phase 0 exit — schema registry + ADR set (ADR-0001..0021) + research ledger
+    - DK0-M1 measured qualification core — CPU/GPU/memory/storage benchmarks,
+      sustained windows, DCP-2026 profile derivation with reason codes;
+      DevKit-0 quick-mode evidence 2026-09-07 (BASE/4K60/4K120 claimed)
+    - ADR-0022 host-vs-session profile semantics (2026-09-07) — DCP-RENDER-*
+      host profiles, DCX-* session profiles, rational display modes,
+      two-section qualification report; legacy 4K60/4K120 superseded
+    - gpu.rt DXR 1.1 ray-query benchmark implemented (blocked on DevKit-0
+      preview-driver device-removal defect; RESEARCH_LEDGER §24)
+    - gpu.rt_pipeline full DXR pipeline benchmark implemented — TraceRay
+      availability DISPROVEN as a toolchain gap (ledger §23); state-object
+      DXIL-library rejection is the remaining driver blocker (ledger §25)
+    - dc-displayprobe hardened (desc-variant + composition fallback, per-variant
+      HRESULT evidence); DevKit-0 presentation path currently rejects all
+      swapchain creation — VRR honestly unproven, not claimed
+    - Vulkan host discovery RUNTIME_VERIFIED (loader 1.4.341, RTX 5070 Ti,
+      ray-query + mesh shader; ledger §25)
+    - GameInput primary backend RUNTIME_VERIFIED (redist 4.3.0.218; static
+      link mandatory — dynamic load crashes, ledger §26) → SDL3 3.4.16
+      fallback → XInput floor (ledger §27)
+    - immutable evidence runs + index + dc-qualify-report aggregator +
+      EVIDENCE_POLICY.md + dc-stage-certification staging tool with thermal
+      guardrails (first staged run 2026-09-08T05_36_52Z)
+    - ADR-0023 milestone status vocabulary — DK0-M1 IMPLEMENTATION CLOSED;
+      DevKit-0 certification: presentation/VRR unblocked 2026-09-10
+      (displayprobe device→queue fix; VRR ACTIVELY PROVEN on dGPU),
+      quiet-system standard run captured with valid sustained windows
+      (run 2026-09-10T02_11_25Z_standard); remaining certification block is
+      RT only (gpu.rt_inline driver device-removal, gpu.rt_pipeline OS
+      CreateStateObject DXIL-library rejection)
+    - displayprobe integration — --qualify runs dc-displayprobe as a child,
+      parses its dc.display-probe/1 JSON with the real parser, stores raw
+      output as immutable run evidence, feeds display.vrr_proven into host
+      and session derivation (ADR-0022)
+    - supervisor crash semantics — only exit code 0 is Clean; nonzero
+      abnormal (external taskkill was previously classified clean)
+    - sustained CPU methodology fix — continuous-load window (steady-state
+      warmup + untimed filler between samples); the yield-between-samples
+      design measured its own DVFS ramp and self-aborted
+  gates_pending:
+    - DevKit-0 RT certification — gpu.rt_inline (driver device-removal
+      0x887A0005) + gpu.rt_pipeline (OS runtime DXIL-library rejection);
+      re-test on driver/OS update
+    - DCX-VRR claim — presentation path PROVEN; blocked only on measured
+      storage p99 latency (DCP-2026-LOWLATENCY); re-test quiet system
+    - DK0-M2 shell surface — interactive controller-only visual shell + Guide
+      overlay; input-loss/display-topology reaction tests; controller-only E2E
+      (needs physical controller connected)
+
+milestones:
+  - id: DK0-M1
+    name: Host Doctor
+    status: implementation-closed  # ADR-0023; certification partially blocked (driver)
+    acceptance: >
+      dc-hostprof emits host-capability.json + human-readable report covering
+      OS/build, CPU topology, GPU D3D12 capabilities, Vulkan capabilities, VRAM,
+      system RAM, storage type and benchmark, display modes, HDR data, VRR
+      feasibility, audio endpoints, GameInput devices, Secure Boot/TPM state,
+      sustained performance probe.
+  - id: DK0-M2
+    name: Console Session
+    status: active  # 2026-09-10: substrate RUNTIME_VERIFIED incl. §39 topology
+    # reaction (injected WM_DISPLAYCHANGE → live re-enum → stale-DCX
+    # invalidation), typed launch contract (ADR-0024, canon §16 embryo,
+    # cross-process transport proof), §K controller dedup policy (code-
+    # enforced in ProbeInput). 10/10 CTest + contract gate green.
+    # remainder = physical controller-only acceptance walk (§36) + input-loss
+    # walk (§38) — needs a controller attached (software side complete).
+  - id: DK0-M3
+    name: Minimal native title (.11g)
+    status: seed-present  # launch contract + registry entry are the .11g
+    # embryo (ADR-0024); packaging layer pending
+  - id: DK0-M4
+    name: Fidelity Lab (VFR proof)
+    status: pending
+  - id: DK0-M5
+    name: Certification runner
+    status: pending
+
+validation:
+  build: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 && cmake --build build --config Release
+  tests: ctest --test-dir build -C Release --output-on-failure
+  contract: python scripts/validate/contract_tests.py
+  qualify: build/Release/dc-hostprof.exe --qualify quick --out evidence/qualification/qualification-summary.json
+
+constraints:
+  - Canon authority: docs/canon/DC-CANON-001.md — no silent contradictions
+  - First executable is dc-hostprof, not the shell (canon §50)
+  - Windows Host Edition = bootstrap host; ConsoleOS = long-term appliance host
+  - Truth classification required on all roadmap claims

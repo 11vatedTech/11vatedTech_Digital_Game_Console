@@ -1,0 +1,26 @@
+[
+{
+  "run_id": "2026-09-07T23_56_37Z_quick",
+  "mode": "quick",
+  "started_at_utc": "2026-09-07T23:56:37Z",
+  "sustained_valid": true
+},
+{
+  "run_id": "2026-09-08T00_09_56Z_quick",
+  "mode": "quick",
+  "started_at_utc": "2026-09-08T00:09:56Z",
+  "sustained_valid": true
+},
+{
+  "run_id": "2026-09-10T01_10_07Z_quick",
+  "mode": "quick",
+  "started_at_utc": "2026-09-10T01:10:07Z",
+  "sustained_valid": true
+},
+{
+  "run_id": "2026-09-10T01_31_11Z_quick",
+  "mode": "quick",
+  "started_at_utc": "2026-09-10T01:31:11Z",
+  "sustained_valid": true
+}
+]

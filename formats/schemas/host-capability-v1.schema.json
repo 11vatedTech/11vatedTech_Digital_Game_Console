@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://11vated.tech/schemas/dc.host-capability/1",
+  "title": "Digital Console Host Capability Record (v1, archived)",
+  "description": "LEGACY: preserved for ADR-0021 compat mapping. Do not emit new /1 records except via dc-hostprof --schema-version 1. The /1 convention encoded 'unmeasured' as score 0; /2 replaces this with qualification.measured.",
+  "type": "object",
+  "required": ["schema", "host_id", "os", "cpu", "gpu", "memory", "storage", "display", "audio", "input", "thermal", "trust"],
+  "properties": {
+    "schema": { "const": "dc.host-capability/1" },
+    "host_id": { "type": "string", "minLength": 1 },
+    "generated_utc": { "type": "string", "format": "date-time" },
+    "os": {
+      "type": "object",
+      "required": ["family", "version"],
+      "properties": {
+        "family": { "enum": ["windows", "consoleos"] },
+        "version": { "type": "string" },
+        "build": { "type": "integer", "minimum": 0 },
+        "edition": { "type": "string" }
+      }
+    },
+    "cpu": {
+      "type": "object",
+      "required": ["arch", "logical_cores"],
+      "properties": {
+        "arch": { "type": "string" },
+        "model_name": { "type": "string" },
+        "physical_cores": { "type": "integer", "minimum": 1 },
+        "logical_cores": { "type": "integer", "minimum": 1 },
+        "base_clock_hz": { "type": "number", "minimum": 0 },
+        "max_clock_hz": { "type": "number", "minimum": 0 },
+        "game_thread_score": { "type": "number", "minimum": 0, "description": "0 = unmeasured (discovery-only pass)" },
+        "worker_score": { "type": "number", "minimum": 0 },
+        "sustained_score": { "type": "number", "minimum": 0 }
+      }
+    },
+    "gpu": {
+      "type": "object",
+      "required": ["vendor", "api"],
+      "properties": {
+        "vendor": { "enum": ["nvidia", "amd", "intel", "other", "unknown"] },
+        "model_name": { "type": "string" },
+        "driver_version": { "type": "string" },
+        "api": { "type": "array", "items": { "enum": ["d3d12", "vulkan"] }, "minItems": 1 },
+        "d3d12": {
+          "type": "object",
+          "properties": {
+            "feature_level": { "type": "string" },
+            "vram_bytes": { "type": "integer", "minimum": 0 },
+            "dedicated_vram_bytes": { "type": "integer", "minimum": 0 },
+            "shared_vram_bytes": { "type": "integer", "minimum": 0 },
+            "raytracing_tier": { "type": "number" },
+            "mesh_shader": { "type": "boolean" },
+            "sampler_feedback": { "type": "boolean" },
+            "directstorage_gpu_decompression": { "type": "boolean" }
+          }
+        },
+        "vulkan": {
+          "type": "object",
+          "properties": {
+            "api_version": { "type": "string" },
+            "device_name": { "type": "string" },
+            "ray_query": { "type": "boolean" },
+            "mesh_shader": { "type": "boolean" }
+          }
+        },
+        "vram_bytes": { "type": "integer", "minimum": 0 },
+        "raster_score": { "type": "number", "minimum": 0 },
+        "compute_score": { "type": "number", "minimum": 0 },
+        "rt_score": { "type": "number", "minimum": 0 },
+        "matrix_score": { "type": "number", "minimum": 0 }
+      }
+    },
+    "memory": {
+      "type": "object",
+      "required": ["system_bytes"],
+      "properties": {
+        "system_bytes": { "type": "integer", "minimum": 0 },
+        "available_bytes": { "type": "integer", "minimum": 0 },
+        "bandwidth_score": { "type": "number", "minimum": 0 },
+        "pressure_safe_bytes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "storage": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "class"],
+        "properties": {
+          "id": { "type": "string" },
+          "class": { "enum": ["DC_STORAGE_LEGACY", "DC_STORAGE_SATA_SSD", "DC_STORAGE_NVME_BASE", "DC_STORAGE_NVME_HIGH", "DC_STORAGE_STREAMING_CERTIFIED", "DC_STORAGE_UNKNOWN"] },
+          "media_type": { "type": "string" },
+          "bus_type": { "type": "string" },
+          "capacity_bytes": { "type": "integer", "minimum": 0 },
+          "free_bytes": { "type": "integer", "minimum": 0 },
+          "read_seq_mbps": { "type": "number", "minimum": 0 },
+          "read_random_score": { "type": "number", "minimum": 0 },
+          "latency_us_p50": { "type": "number", "minimum": 0 },
+          "latency_us_p99": { "type": "number", "minimum": 0 },
+          "gpu_decompression": { "type": "boolean" }
+        }
+      }
+    },
+    "display": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "primary": { "type": "boolean" },
+          "active": { "type": "boolean" },
+          "resolution": {
+            "type": "object",
+            "properties": { "width": { "type": "integer" }, "height": { "type": "integer" } }
+          },
+          "desktop_refresh_hz": { "type": "number" },
+          "modes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["width", "height", "refresh_hz"],
+              "properties": {
+                "width": { "type": "integer" },
+                "height": { "type": "integer" },
+                "refresh_hz": { "type": "number" },
+                "bits_per_color": { "type": "integer" }
+              }
+            }
+          },
+          "hdr": {
+            "type": "object",
+            "properties": {
+              "advanced_color_supported": { "type": "boolean" },
+              "advanced_color_active": { "type": "boolean" },
+              "advanced_color_kind": { "type": "string" },
+              "bits_per_color": { "type": "integer" },
+              "min_luminance_nits": { "type": "number" },
+              "max_luminance_nits": { "type": "number" },
+              "max_full_frame_luminance_nits": { "type": "number" },
+              "sdr_white_level_nits": { "type": "number" },
+              "red_primary": { "type": "array", "items": { "type": "number" } },
+              "green_primary": { "type": "array", "items": { "type": "number" } },
+              "blue_primary": { "type": "array", "items": { "type": "number" } },
+              "white_point": { "type": "array", "items": { "type": "number" } },
+              "metadata_formats": { "type": "array", "items": { "type": "string" } }
+            }
+          },
+          "vrr": {
+            "type": "object",
+            "properties": {
+              "supported": { "type": "boolean" },
+              "min_refresh_hz": { "type": "number" },
+              "max_refresh_hz": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+    "audio": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "kind": { "enum": ["hdmi", "analog", "usb", "bluetooth", "virtual", "other"] },
+          "default_output": { "type": "boolean" },
+          "channels": { "type": "integer", "minimum": 1 },
+          "sample_rates_hz": { "type": "array", "items": { "type": "integer" } },
+          "spatial_capable": { "type": "boolean" },
+          "microphone": { "type": "boolean" }
+        }
+      }
+    },
+    "input": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind"],
+        "properties": {
+          "id": { "type": "string" },
+          "kind": { "enum": ["gamepad", "wheel", "flightstick", "arcade_stick", "touch", "other"] },
+          "name": { "type": "string" },
+          "backend": { "enum": ["gameinput", "sdl3", "rawinput", "other"] },
+          "connection": { "enum": ["wired", "wireless", "unknown"] },
+          "battery_percent": { "type": ["integer", "null"], "minimum": 0, "maximum": 100 },
+          "haptics": { "type": "boolean" },
+          "gyro": { "type": "boolean" },
+          "touch_surface": { "type": "boolean" },
+          "adaptive_triggers": { "type": "boolean" }
+        }
+      }
+    },
+    "thermal": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "sustained_profile_valid": { "type": "boolean" },
+        "power_scheme": { "type": "string" },
+        "note": { "type": "string" }
+      }
+    },
+    "trust": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "secure_boot": { "type": "boolean" },
+        "tpm": { "type": "boolean" },
+        "tpm_version": { "type": "string" },
+        "measured_boot_available": { "type": "boolean" }
+      }
+    },
+    "profiles": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^DCP-" },
+      "description": "Versioned Digital Console Profile IDs this host currently claims (empty until sustained qualification runs)."
+    }
+  }
+}

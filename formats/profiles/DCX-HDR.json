@@ -1,0 +1,11 @@
+{
+  "schema": "dc.profile/1",
+  "id": "DCX-HDR",
+  "version": 1,
+  "kind": "session",
+  "title": "Session experience: HDR active on the current output (ADR-0022)",
+  "requires": [
+    { "host_profile": "DCP-2026-HDR" },
+    { "path": "display.hdr_active", "value": 1 }
+  ]
+}

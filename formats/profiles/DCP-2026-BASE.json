@@ -1,0 +1,40 @@
+{
+  "schema": "dc.profile/1",
+  "id": "DCP-2026-BASE",
+  "version": 1,
+  "title": "Digital Console Baseline (1080p-class sustained gaming)",
+  "requires": [
+    {
+      "path": "cpu.game_thread_score",
+      "value": 20000000
+    },
+    {
+      "path": "cpu.sustained_score",
+      "value": 12000000
+    },
+    {
+      "path": "gpu.raster_score",
+      "value": 150000000
+    },
+    {
+      "path": "gpu.compute_score",
+      "value": 800000000
+    },
+    {
+      "path": "gpu.sustained_score",
+      "value": 120000000
+    },
+    {
+      "path": "memory.ram_bytes",
+      "value": 17179869184
+    },
+    {
+      "path": "memory.vram_bytes",
+      "value": 4294967296
+    },
+    {
+      "path": "storage.read_seq_mbps",
+      "value": 400
+    }
+  ]
+}

@@ -1,0 +1,277 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://11vated.tech/schemas/dc.host-capability/2",
+  "title": "Digital Console Host Capability Record v2",
+  "description": "Machine-readable host qualification truth per DC-CANON-001 section 10 and ADR-0021. Scores MUST derive from platform-owned reproducible microbenchmarks (docs/benchmarks.md). Unmeasured state is explicit via qualification.measured; discovery-side score fields of 0 in a measured record mean the domain legitimately measured zero or was unavailable (see qualification summary + evidence files).",
+  "type": "object",
+  "required": ["schema", "host_id", "os", "cpu", "gpu", "memory", "storage", "display", "audio", "input", "thermal", "trust", "qualification"],
+  "properties": {
+    "schema": { "const": "dc.host-capability/2" },
+    "host_id": { "type": "string", "minLength": 1 },
+    "generated_utc": { "type": "string" },
+    "build": {
+      "type": "object",
+      "properties": {
+        "git_hash": { "type": "string" },
+        "build_config": { "type": "string" },
+        "runtime_version": { "type": "string" }
+      }
+    },
+    "os": {
+      "type": "object",
+      "required": ["family", "version"],
+      "properties": {
+        "family": { "enum": ["windows", "consoleos"] },
+        "version": { "type": "string" },
+        "build": { "type": "integer", "minimum": 0 },
+        "edition": { "type": "string" }
+      }
+    },
+    "cpu": {
+      "type": "object",
+      "required": ["arch", "logical_cores"],
+      "properties": {
+        "arch": { "type": "string" },
+        "model_name": { "type": "string" },
+        "physical_cores": { "type": "integer", "minimum": 1 },
+        "logical_cores": { "type": "integer", "minimum": 1 },
+        "base_clock_hz": { "type": "number", "minimum": 0 },
+        "max_clock_hz": { "type": "number", "minimum": 0 },
+        "game_thread_score": { "type": "number", "minimum": 0 },
+        "worker_score": { "type": "number", "minimum": 0 },
+        "sustained_score": { "type": "number", "minimum": 0 }
+      }
+    },
+    "gpu": {
+      "type": "object",
+      "required": ["vendor", "api"],
+      "properties": {
+        "vendor": { "enum": ["nvidia", "amd", "intel", "other", "unknown"] },
+        "model_name": { "type": "string" },
+        "driver_version": { "type": "string" },
+        "api": { "type": "array", "items": { "enum": ["d3d12", "vulkan"] }, "minItems": 1 },
+        "d3d12": {
+          "type": "object",
+          "properties": {
+            "available": { "type": "boolean" },
+            "feature_level": { "type": "string" },
+            "dedicated_vram_bytes": { "type": "integer", "minimum": 0 },
+            "shared_vram_bytes": { "type": "integer", "minimum": 0 },
+            "raytracing_tier": { "type": "number" },
+            "mesh_shader": { "type": "boolean" },
+            "sampler_feedback": { "type": "boolean" },
+            "directstorage_gpu_decompression": { "type": "boolean" }
+          }
+        },
+        "vulkan": {
+          "type": "object",
+          "properties": {
+            "available": { "type": "boolean" },
+            "api_version": { "type": "string" },
+            "device_name": { "type": "string" },
+            "ray_query": { "type": "boolean" },
+            "mesh_shader": { "type": "boolean" },
+            "queue_families": { "type": "integer", "minimum": 0 },
+            "memory_heaps": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "vram_bytes": { "type": "integer", "minimum": 0 },
+        "raster_score": { "type": "number", "minimum": 0 },
+        "compute_score": { "type": "number", "minimum": 0 },
+        "rt_score": { "type": "number", "minimum": 0 },
+        "matrix_score": { "type": "number", "minimum": 0 }
+      }
+    },
+    "memory": {
+      "type": "object",
+      "required": ["system_bytes"],
+      "properties": {
+        "system_bytes": { "type": "integer", "minimum": 0 },
+        "available_bytes": { "type": "integer", "minimum": 0 },
+        "bandwidth_score": { "type": "number", "minimum": 0 },
+        "pressure_safe_bytes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "storage": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "class"],
+        "properties": {
+          "id": { "type": "string" },
+          "class": { "enum": ["DC_STORAGE_LEGACY", "DC_STORAGE_SATA_SSD", "DC_STORAGE_NVME_BASE", "DC_STORAGE_NVME_HIGH", "DC_STORAGE_STREAMING_CERTIFIED", "DC_STORAGE_UNKNOWN"] },
+          "media_type": { "type": "string" },
+          "bus_type": { "type": "string" },
+          "capacity_bytes": { "type": "integer", "minimum": 0 },
+          "free_bytes": { "type": "integer", "minimum": 0 },
+          "read_seq_mbps": { "type": "number", "minimum": 0 },
+          "read_random_score": { "type": "number", "minimum": 0 },
+          "latency_us_p50": { "type": "number", "minimum": 0 },
+          "latency_us_p95": { "type": "number", "minimum": 0 },
+          "latency_us_p99": { "type": "number", "minimum": 0 },
+          "queue_depth_tested": { "type": "integer", "minimum": 0 },
+          "sustained_streaming_score": { "type": "number", "minimum": 0 },
+          "gpu_decompression": { "type": "boolean" }
+        }
+      }
+    },
+    "display": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "primary": { "type": "boolean" },
+          "active": { "type": "boolean" },
+          "resolution": {
+            "type": "object",
+            "properties": { "width": { "type": "integer" }, "height": { "type": "integer" } }
+          },
+          "desktop_refresh_hz": { "type": "number" },
+          "modes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["width", "height", "refresh_hz"],
+              "properties": {
+                "width": { "type": "integer" },
+                "height": { "type": "integer" },
+                "refresh_hz": { "type": "number" },
+                "bits_per_color": { "type": "integer" }
+              }
+            }
+          },
+          "hdr": {
+            "type": "object",
+            "properties": {
+              "advanced_color_supported": { "type": "boolean" },
+              "advanced_color_active": { "type": "boolean" },
+              "user_enabled": { "type": "boolean" },
+              "wide_color_gamut": { "type": "boolean" },
+              "metadata_available": { "type": "boolean" },
+              "advanced_color_kind": { "type": "string" },
+              "bits_per_color": { "type": "integer" },
+              "min_luminance_nits": { "type": "number", "minimum": 0 },
+              "max_luminance_nits": { "type": "number", "minimum": 0 },
+              "max_full_frame_luminance_nits": { "type": "number", "minimum": 0 },
+              "sdr_white_level_nits": { "type": "number", "minimum": 0 },
+              "metadata_formats": { "type": "array", "items": { "type": "string" } },
+              "red_primary": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "number" } },
+              "green_primary": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "number" } },
+              "blue_primary": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "number" } },
+              "white_point": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "number" } }
+            }
+          },
+          "vrr": {
+            "type": "object",
+            "properties": {
+              "supported": { "type": "boolean", "description": "OS-reported VRR-capable environment" },
+              "path_compatible": { "type": "boolean", "description": "flip-model + tearing path constructible" },
+              "actively_proven": { "type": "boolean", "description": "measured working via dc-displayprobe" },
+              "min_refresh_hz": { "type": "number", "minimum": 0 },
+              "max_refresh_hz": { "type": "number", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    "audio": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "kind": { "enum": ["hdmi", "analog", "usb", "bluetooth", "virtual", "other"] },
+          "default_output": { "type": "boolean" },
+          "channels": { "type": "integer", "minimum": 1 },
+          "sample_rates_hz": { "type": "array", "items": { "type": "integer" } },
+          "spatial_capable": { "type": "boolean" },
+          "microphone": { "type": "boolean" }
+        }
+      }
+    },
+    "input": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind"],
+        "properties": {
+          "id": { "type": "string" },
+          "kind": { "enum": ["gamepad", "wheel", "flightstick", "arcade_stick", "touch", "other"] },
+          "name": { "type": "string" },
+          "backend": { "enum": ["gameinput", "sdl3", "rawinput", "other"] },
+          "connection": { "enum": ["wired", "wireless", "unknown"] },
+          "battery_percent": { "type": ["integer", "null"], "minimum": 0, "maximum": 100 },
+          "haptics": { "type": "boolean" },
+          "gyro": { "type": "boolean" },
+          "touch_surface": { "type": "boolean" },
+          "adaptive_triggers": { "type": "boolean" }
+        }
+      }
+    },
+    "thermal": {
+      "type": "object",
+      "properties": {
+        "sustained_profile_valid": { "type": "boolean" },
+        "power_scheme": { "type": "string" },
+        "note": { "type": "string" }
+      }
+    },
+    "trust": {
+      "type": "object",
+      "properties": {
+        "secure_boot": { "type": "boolean" },
+        "tpm": { "type": "boolean" },
+        "tpm_version": { "type": "string" },
+        "measured_boot_available": { "type": "boolean" }
+      }
+    },
+    "directstorage": {
+      "type": "object",
+      "properties": {
+        "runtime_available": { "type": "boolean" },
+        "version": { "type": "string" },
+        "gpu_decompression_supported": { "type": "boolean" },
+        "gdeflate_supported": { "type": "boolean" },
+        "zstd_status": { "enum": ["stable", "preview", "unavailable"] }
+      }
+    },
+    "qualification": {
+      "type": "object",
+      "required": ["measured", "mode"],
+      "properties": {
+        "measured": { "type": "boolean" },
+        "mode": { "enum": ["none", "quick", "standard", "certification"] },
+        "sustained_valid": { "type": "boolean" },
+        "timestamp_utc": { "type": "string" }
+      }
+    },
+    "profiles_claimed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "version"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^DCP-" },
+          "version": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "profiles_rejected": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "reasons"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^DCP-" },
+          "reasons": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "dc.display-probe/1",
+  "device_ok": true,
+  "vrr_capable_environment": true,
+  "vrr_path_compatible": true,
+  "vrr_actively_proven": true,
+  "present_vsync_ok": true,
+  "stats_available": true,
+  "proven_adapter": "max-vram",
+  "avg_present_ms": 0.847223,
+  "observed_min_refresh_hz": 2128.112364,
+  "observed_max_refresh_hz": 4582.951421,
+  "variant": "created max-vram variant flip-discard:3:tearing",
+  "variant_attempts": [],
+  "note": ""
+}
