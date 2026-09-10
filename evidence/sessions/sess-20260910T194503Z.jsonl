@@ -1,0 +1,17 @@
+{"session":"sess-20260910T194503Z","from":"SESSION_OFF","to":"SESSION_STARTING","reason":"boot_sequence","monotonic_ns":100,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T194503Z","from":"SESSION_STARTING","to":"HOST_VALIDATING","reason":"boot_sequence","monotonic_ns":280700,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T194503Z","from":"HOST_VALIDATING","to":"SESSION_CAPABILITIES_RESOLVING","reason":"boot_sequence","monotonic_ns":327000,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T194503Z","from":"SESSION_CAPABILITIES_RESOLVING","to":"INPUT_ACQUIRING","reason":"boot_sequence","monotonic_ns":355000,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T194503Z","from":"INPUT_ACQUIRING","to":"SHELL_STARTING","reason":"boot_sequence","monotonic_ns":633500,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T194503Z","from":"SHELL_STARTING","to":"SHELL_ACTIVE","reason":"boot_sequence","monotonic_ns":681700,"correlation":1,"timed_out":false}
+{"session":"","from":"SHELL_ACTIVE","to":"TITLE_REQUESTED","reason":"requested","monotonic_ns":14186500,"correlation":1,"timed_out":false}
+{"session":"","from":"TITLE_REQUESTED","to":"TITLE_VALIDATING","reason":"requested","monotonic_ns":14201300,"correlation":1,"timed_out":false}
+{"session":"","from":"TITLE_VALIDATING","to":"TITLE_STARTING","reason":"requested","monotonic_ns":14305900,"correlation":1,"timed_out":false}
+{"session":"","from":"TITLE_STARTING","to":"TITLE_ACTIVE","reason":"requested","monotonic_ns":23396800,"correlation":1,"timed_out":false}
+{"session":"","from":"TITLE_ACTIVE","to":"TITLE_SUSPENDED","reason":"guide_activated","monotonic_ns":315899900,"correlation":2,"timed_out":false}
+{"session":"","from":"TITLE_SUSPENDED","to":"TITLE_RESUMING","reason":"requested","monotonic_ns":316985300,"correlation":2,"timed_out":false}
+{"session":"","from":"TITLE_RESUMING","to":"TITLE_ACTIVE","reason":"requested","monotonic_ns":317026400,"correlation":2,"timed_out":false}
+{"session":"","from":"TITLE_ACTIVE","to":"TITLE_STOPPING","reason":"topology_changed","monotonic_ns":523233700,"correlation":2,"timed_out":false}
+{"session":"","from":"TITLE_STOPPING","to":"SHELL_RECOVERING","reason":"topology_changed","monotonic_ns":523285600,"correlation":2,"timed_out":false}
+{"session":"","from":"SHELL_RECOVERING","to":"SHELL_ACTIVE","reason":"topology_changed","monotonic_ns":523297400,"correlation":2,"timed_out":false}
+{"session":"sess-20260910T194503Z","from":"SHELL_ACTIVE","to":"SESSION_EXIT","reason":"user_exit","monotonic_ns":1678289800,"correlation":2,"timed_out":false}

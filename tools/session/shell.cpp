@@ -29,6 +29,7 @@
 #include <windows.h>
 #include <d3d12.h>
 #include <dxgi1_4.h>
+#include <mmdeviceapi.h>
 #include <wrl/client.h>
 
 #include <algorithm>
@@ -54,7 +55,58 @@ namespace dcwin {
 // Live display re-enumeration (hosts/windows/probe_display.cpp) — used by the
 // shell's §39 topology reaction. Deliberately not part of the core API.
 void ProbeDisplays(std::vector<dc::DisplayDeviceInfo>& displays);
+// Live audio endpoint enumeration (hosts/windows/probe_devices.cpp).
+void ProbeAudioEndpoints(std::vector<dc::AudioEndpoint>& out);
 } // namespace dcwin
+
+// ---------------------------------------------------------------------------
+// §18 audio-topology watcher: MMDevice notifications → session event. Audio
+// route changes are lifecycle events (canon §819-equivalent): the title stays
+// running; the session journals the change and refreshes the SYSTEM view.
+// ---------------------------------------------------------------------------
+class AudioEndpointWatcher final : public IMMNotificationClient {
+public:
+    explicit AudioEndpointWatcher(std::atomic<bool>* flag) : flag_(flag) {}
+
+    // IUnknown (ref-counted; enumerator holds a reference).
+    ULONG STDMETHODCALLTYPE AddRef() override { return ++refs_; }
+    ULONG STDMETHODCALLTYPE Release() override {
+        ULONG r = --refs_;
+        if (!r) delete this;
+        return r;
+    }
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** out) override {
+        if (!out) return E_POINTER;
+        if (riid == __uuidof(IUnknown) || riid == __uuidof(IMMNotificationClient)) {
+            *out = static_cast<IMMNotificationClient*>(this);
+            AddRef();
+            return S_OK;
+        }
+        *out = nullptr;
+        return E_NOINTERFACE;
+    }
+
+    // Only the default-endpoint change matters for the session contract now;
+    // device add/remove refresh the same flag (the SYSTEM view re-probes).
+    HRESULT STDMETHODCALLTYPE OnDefaultDeviceChanged(EDataFlow flow,
+                                                     ERole role,
+                                                     LPCWSTR) override {
+        if (flow == eRender && (role == eConsole || role == eMultimedia))
+            flag_->store(true, std::memory_order_release);
+        return S_OK;
+    }
+    HRESULT STDMETHODCALLTYPE OnDeviceAdded(LPCWSTR) override { return S_OK; }
+    HRESULT STDMETHODCALLTYPE OnDeviceRemoved(LPCWSTR) override { return S_OK; }
+    HRESULT STDMETHODCALLTYPE OnDeviceStateChanged(LPCWSTR, DWORD) override {
+        return S_OK;
+    }
+    HRESULT STDMETHODCALLTYPE OnPropertyValueChanged(LPCWSTR, const PROPERTYKEY)
+        override { return S_OK; }
+
+private:
+    std::atomic<bool>* flag_;
+    ULONG refs_ = 1;
+};
 
 namespace {
 
@@ -517,10 +569,19 @@ private:
     }
 
 public:
+    // §18 audio-topology reaction: route change is a journaled lifecycle
+    // event; the title keeps running — audio never tears down the session.
+    void ProcessAudioChange();
+
     // §39 display-topology reaction: invalidate live session claims; defer any
     // close to the main loop (WndProc must never block on the supervisor).
     void OnDisplayTopologyChanged();
     void SetTopologyWindow(HWND h) { hwnd_ = h; }   // selftest injection path
+    void ArmAudioWatcher();                          // COM registration
+    void DisarmAudioWatcher();
+    std::atomic<bool>& AudioTopologyPending() { return audio_pending_flag_; }
+
+private:
 
 private:
     bool LaunchTitle(const TitleEntry& e);
@@ -569,6 +630,11 @@ private:
     std::vector<DisplayDeviceInfo> topo_displays_;
     HWND hwnd_ = nullptr;
     bool topo_injected_ = false;
+    bool qr1_injected_ = false;
+    bool audio_injected_ = false;
+    IMMDeviceEnumerator* mm_enum_ = nullptr;
+    AudioEndpointWatcher* audio_watcher_ = nullptr;
+    std::atomic<bool> audio_pending_flag_{false};
 };
 
 // WndProc side: capture live display truth immediately, defer all mutation.
@@ -579,6 +645,50 @@ void ShellApp::OnDisplayTopologyChanged() {
 }
 
 void ShellRouteTopology(ShellApp* app) { app->OnDisplayTopologyChanged(); }
+
+// §18: consume the audio-topology flag (set by the MMDevice watcher thread).
+// Journals the event and refreshes the SYSTEM view's endpoint list. The title
+// is deliberately left untouched — audio route changes must not restart or
+// suspend a running title (canon: audio topology is a lifecycle event).
+void ShellApp::ProcessAudioChange() {
+    if (!audio_pending_flag_.exchange(false, std::memory_order_acq_rel)) return;
+
+    std::vector<dc::AudioEndpoint> eps;
+    dcwin::ProbeAudioEndpoints(eps);
+    host_.audio.clear();
+    for (const auto& e : eps) host_.audio.push_back(e.name);
+
+    SessionTransition t{};
+    t.from = t.to = sm_.state();
+    t.reason = TransitionReason::TopologyChanged;
+    t.monotonic_ns = NowNs();
+    t.correlation_id = corr_;
+    journal_.Append(t, session_id_);
+    std::printf("[session] audio topology change: %zu endpoints\n", eps.size());
+    toast_ = "Audio output changed";
+    toast_until_ = GetTickCount64() + 4000;
+}
+
+// §18: COM-based audio-endpoint watcher registration (main thread, COM STA
+// already initialized by the session process).
+void ShellApp::ArmAudioWatcher() {
+    HRESULT hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr,
+                                  CLSCTX_ALL, __uuidof(IMMDeviceEnumerator),
+                                  reinterpret_cast<void**>(&mm_enum_));
+    if (FAILED(hr) || !mm_enum_) return;
+    audio_watcher_ = new AudioEndpointWatcher(&audio_pending_flag_);
+    mm_enum_->RegisterEndpointNotificationCallback(audio_watcher_);
+}
+
+
+void ShellApp::DisarmAudioWatcher() {
+    if (mm_enum_ && audio_watcher_) {
+        mm_enum_->UnregisterEndpointNotificationCallback(audio_watcher_);
+        audio_watcher_->Release();  // drop our reference; enumerator holds its own
+        audio_watcher_ = nullptr;
+    }
+    if (mm_enum_) { mm_enum_->Release(); mm_enum_ = nullptr; }
+}
 
 // Main-loop side: journal the reaction, invalidate stale DCX claims only in
 // the live view (evidence files are immutable per ADR-0023), and close a
@@ -722,9 +832,14 @@ void ShellApp::PollInput(bool& quit) {
     pressed |= kb & ~prev_kbd_;
     prev_kbd_ = kb;
 
-    // Guide ownership (§34/§17): the system action always wins.
+    // Guide ownership (§34/§17): the system action always wins. When a title
+    // is active, Guide suspends it through the §19 QR1 lifecycle boundary:
+    // supervisor signal → title checkpoint → ACK → TITLE_SUSPENDED.
     if (static_cast<uint32_t>(acts) & static_cast<uint32_t>(ConsoleAction::Guide)) {
-        if (sm_.state() == SessionState::TitleActive) {
+        if (sm_.state() == SessionState::TitleActive && supervisor_) {
+            dc::TitleNotifyResult nr = supervisor_->SuspendGame(3000);
+            std::printf("[session] suspend request: %s\n",
+                        TitleNotifyResultName(nr));
             Trans(SessionState::TitleSuspended, TransitionReason::GuideActivated);
         }
         view_ = View::Guide;
@@ -911,7 +1026,10 @@ void ShellApp::PollTitleExit() {
 void ShellApp::GuideItem(int sel) {
     switch (sel) {
         case 0:  // Resume
-            if (sm_.state() == SessionState::TitleSuspended) {
+            if (sm_.state() == SessionState::TitleSuspended && supervisor_) {
+                dc::TitleNotifyResult nr = supervisor_->ResumeGame(3000);
+                std::printf("[session] resume request: %s\n",
+                            TitleNotifyResultName(nr));
                 Trans(SessionState::TitleResuming, TransitionReason::Requested);
                 Trans(SessionState::TitleActive, TransitionReason::Requested);
             }
@@ -1141,7 +1259,33 @@ int ShellApp::Run(int selftest_frames) {
             SendMessageA(hwnd_, WM_DISPLAYCHANGE, 0, 0);
             topo_injected_ = true;
         }
+        // §19 QR1 verification hook (selftest): full suspend→resume cycle
+        // through the live supervisor while the title is active. Note: the
+        // topology injection at frame 15 supersedes the title, so QR1 runs
+        // first (frame 8) — a later E2E re-verify covers the combined order.
+        if (selftest_frames > 0 && !qr1_injected_ && frames == 8 &&
+            sm_.state() == SessionState::TitleActive && supervisor_) {
+            std::printf("[session] selftest: QR1 suspend\n");
+            dc::TitleNotifyResult nr = supervisor_->SuspendGame(3000);
+            std::printf("[session] suspend request: %s\n",
+                        TitleNotifyResultName(nr));
+            Trans(SessionState::TitleSuspended, TransitionReason::GuideActivated);
+            nr = supervisor_->ResumeGame(3000);
+            std::printf("[session] resume request: %s\n",
+                        TitleNotifyResultName(nr));
+            Trans(SessionState::TitleResuming, TransitionReason::Requested);
+            Trans(SessionState::TitleActive, TransitionReason::Requested);
+            qr1_injected_ = true;
+        }
+        // §18 verification hook (selftest): exercise the audio-reaction path
+        // (the MMDevice watcher→flag wiring is live; this drives OUR handler).
+        if (selftest_frames > 0 && !audio_injected_ && frames == 40) {
+            std::printf("[session] selftest: audio topology change\n");
+            audio_pending_flag_.store(true, std::memory_order_release);
+            audio_injected_ = true;
+        }
         ProcessTopologyChange();   // §39: reacts to WM_DISPLAYCHANGE
+        ProcessAudioChange();      // §18: reacts to MMDevice notifications
         PollTitleExit();
         PollInput(quit);
         if (sm_.CheckTimeout(NowNs())) {
@@ -1226,6 +1370,11 @@ int RunShell(int selftest_frames) {
     SetWindowLongPtrA(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&app));
     app.SetTopologyWindow(hwnd);
 
+    // §18 audio-topology watcher (COM STA). RPC_E_CHANGED_MODE is fine —
+    // COM is already initialized in another apartment; registration works.
+    HRESULT comhr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+    if (SUCCEEDED(comhr) || comhr == RPC_E_CHANGED_MODE) app.ArmAudioWatcher();
+
     LARGE_INTEGER qpf{};
     QueryPerformanceFrequency(&qpf);
     LARGE_INTEGER qpc0{};
@@ -1252,6 +1401,8 @@ int RunShell(int selftest_frames) {
     boot(SessionState::ShellActive);
 
     int rc = app.Run(selftest_frames);
+    app.DisarmAudioWatcher();
+    if (SUCCEEDED(comhr)) CoUninitialize();
 
     TransitionResult r = sm.Transition(SessionState::SessionExit,
                                        TransitionReason::UserExit, now_ns(), corr);

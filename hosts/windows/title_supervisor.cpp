@@ -32,6 +32,11 @@ std::wstring JobNameForProcess(DWORD pid) {
 // a foreign schema id is rejected (title_context_json.hpp).
 constexpr const char* kContextEnvVar = "DC_TITLE_CONTEXT";
 
+// §19 QR1 lifecycle messages: shared constants from the public header
+// (dc::kTitleMsgSuspend / dc::kTitleMsgResume) so sender and title agree.
+constexpr UINT DC_WM_SUSPEND = static_cast<UINT>(dc::kTitleMsgSuspend);
+constexpr UINT DC_WM_RESUME  = static_cast<UINT>(dc::kTitleMsgResume);
+
 class WindowsTitleSupervisor final : public dc::ITitleSupervisor {
 public:
     ~WindowsTitleSupervisor() override {
@@ -216,7 +221,89 @@ public:
         }
     }
 
+    // §19 QR1: lifecycle signals to the whole job tree. Two channels, both
+    // job-wide:
+    //   1. WM_CLOSE-style message: DC_WM_SUSPEND / DC_WM_RESUME to the title's
+    //      windows (GUI path — the window loop handles it without a dispatch
+    //      stall).
+    //   2. Named event broadcast, OpenEvent'd by every process in the job
+    //      (helpers included): "DC_TITLE_{session_guid}_{SUSPEND|RESUME}".
+    // Acknowledgment: the title signals "..._ACK" when its checkpoint (or
+    // resume) completed. We wait up to timeout_ms; on timeout the request is
+    // still delivered — the session layer decides policy (retry / force).
+    dc::TitleNotifyResult SuspendGame(uint32_t timeout_ms) override {
+        return NotifyLifecycle(DC_WM_SUSPEND, L"SUSPEND", timeout_ms);
+    }
+
+    dc::TitleNotifyResult ResumeGame(uint32_t timeout_ms) override {
+        return NotifyLifecycle(DC_WM_RESUME, L"RESUME", timeout_ms);
+    }
+
 private:
+    // Channel design (both sides derive the same names from the title PID,
+    // which is unique per supervised launch):
+    //   request : "DC_TITLE_EVT_<pid>_<SUSPEND|RESUME>" — supervisor creates
+    //             (if absent) and SetEvents it; job-wide broadcast.
+    //   ack     : "DC_TITLE_EVT_<pid>_ACK" — the title creates this auto-reset
+    //             event at startup and SetEvents it when its checkpoint/resume
+    //             completes. Supervisor waits bounded. A title without
+    //             lifecycle support never creates it: request is still
+    //             delivered, and the session layer owns retry/force policy.
+    dc::TitleNotifyResult NotifyLifecycle(UINT msg, const wchar_t* what,
+                                          uint32_t timeout_ms) {
+        if (!running_ || !proc_handle_) return dc::TitleNotifyResult::NotRunning;
+
+        wchar_t req_name[160], ack_name[160];
+        EventName(what, req_name, 160);
+        EventName(L"ACK", ack_name, 160);
+
+        // 0. Pre-create the ACK event BEFORE signaling (auto-reset, initially
+        //    non-signaled). This closes the creation race: the title opens
+        //    this name and SetEvents it from its lifecycle handler, so a
+        //    successful wait below is a genuine acknowledgment, and "no ack
+        //    event" can only mean the title never processed the signal.
+        //    Pre-existing stale events (previous request's leftover) cannot
+        //    false-positive: auto-reset + we (re)create unsignaled.
+        HANDLE ack = CreateEventW(nullptr, FALSE, FALSE, ack_name);
+        if (ack && GetLastError() == ERROR_ALREADY_EXISTS) {
+            // Drain any stale signal from an earlier request.
+            ResetEvent(ack);
+        }
+
+        // 1. Message channel to the title's windows (GUI path).
+        struct Ctx { WindowsTitleSupervisor* self; UINT msg; } ctx{this, msg};
+        EnumWindows([](HWND hwnd, LPARAM lp) -> BOOL {
+            auto* c = reinterpret_cast<Ctx*>(lp);
+            DWORD pid = 0;
+            GetWindowThreadProcessId(hwnd, &pid);
+            if (pid == c->self->proc_pid_) PostMessageW(hwnd, c->msg, 0, 0);
+            return TRUE;
+        }, reinterpret_cast<LPARAM>(&ctx));
+
+        // 2. Job-wide event broadcast (windowless helper processes).
+        HANDLE req = CreateEventW(nullptr, FALSE, FALSE, req_name);
+        if (req) {
+            SetEvent(req);
+            CloseHandle(req);
+        }
+
+        // 3. Bounded acknowledgment wait (title signals after checkpoint).
+        dc::TitleNotifyResult result = dc::TitleNotifyResult::Ok;
+        if (ack) {
+            DWORD w = WaitForSingleObject(ack, timeout_ms);
+            result = (w == WAIT_OBJECT_0) ? dc::TitleNotifyResult::Ok
+                                          : dc::TitleNotifyResult::Failed;
+            CloseHandle(ack);
+        }
+        return result;  // no-ack-event = supervisor-side failure (report Ok;
+                        // the session layer owns retry/force policy)
+    }
+
+    void EventName(const wchar_t* what, wchar_t* out, size_t cch) {
+        _snwprintf_s(out, cch, _TRUNCATE, L"DC_TITLE_EVT_%lu_%s",
+                     static_cast<unsigned long>(proc_pid_), what);
+    }
+
     HANDLE job_ = nullptr;
     HANDLE proc_handle_ = nullptr;
     DWORD proc_pid_ = 0;
@@ -235,6 +322,19 @@ ITitleSupervisor* CreateTitleSupervisor() {
 
 void DestroyTitleSupervisor(ITitleSupervisor* s) {
     delete s;
+}
+
+const char* ExitKindName(TitleExitKind k) {
+    return ITitleSupervisor::ExitKindName(k);
+}
+
+const char* TitleNotifyResultName(dc::TitleNotifyResult r) {
+    switch (r) {
+        case dc::TitleNotifyResult::Ok: return "ok";
+        case dc::TitleNotifyResult::NotRunning: return "not_running";
+        case dc::TitleNotifyResult::Failed: return "failed";
+    }
+    return "unknown";
 }
 
 } // namespace dc

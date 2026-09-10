@@ -1,0 +1,99 @@
+{
+  "schema": "dc.milestone-status/1",
+  "milestone": "DK0-M1-M2",
+  "generated_utc": "2026-09-10T23:30:00Z",
+  "source_commit": "1864a95 (initial import; continuation deltas uncommitted at generation time)",
+  "implementation_state": "IMPLEMENTATION_CLOSED",
+  "verification_state": "RUNTIME_VERIFIED",
+  "certification_state": "CERTIFICATION_BLOCKED_BY_ENVIRONMENT",
+  "blocked_items": [
+    {
+      "item": "gpu.rt_inline",
+      "state": "IMPLEMENTED_UNIT_TESTED",
+      "blocker": "DRIVER",
+      "detail": "Ray-query dispatch triggers asynchronous device removal (0x887A0005) after successful BLAS/TLAS builds and warmups; persists across full driver-state reset (reboot). Same driver 32.0.16.1078.",
+      "evidence_refs": [
+        "evidence/qualification/runs/2026-09-10T02_11_25Z_standard/benchmarks.json",
+        "docs/research/RESEARCH_LEDGER.md#24"
+      ]
+    },
+    {
+      "item": "gpu.rt_pipeline",
+      "state": "IMPLEMENTED_UNIT_TESTED",
+      "blocker": "ENVIRONMENT",
+      "detail": "OS runtime rejects any state object containing a DXIL-library subobject (E_INVALIDARG at CreateStateObject). Full-pipeline code complete; 'TraceRay unsupported by DXC' prior claim DISPROVEN (ledger §23).",
+      "evidence_refs": [
+        "docs/research/RESEARCH_LEDGER.md#25"
+      ]
+    },
+    {
+      "item": "DCX-UHD60 / DCX-UHD120 session claims",
+      "state": "DERIVATION_READY",
+      "blocker": "ENVIRONMENT",
+      "detail": "DevKit-0 laptop panel exposes no 3840x2160 mode; derivation honestly rejects with DISPLAY_MODE_UNAVAILABLE. Host render capability (DCP-RENDER-UHD60/120) is measured and claimed.",
+      "evidence_refs": [
+        "evidence/qualification/runs/2026-09-10T02_11_25Z_standard/session-profiles.json"
+      ]
+    },
+    {
+      "item": "DCX-HDR session claim",
+      "state": "DERIVATION_READY",
+      "blocker": "ENVIRONMENT",
+      "detail": "Display is HDR-capable per discovery but HDR is user-inactive; derivation rejects with HDR_INACTIVE (C10: never conflate capable with active).",
+      "evidence_refs": [
+        "evidence/qualification/runs/2026-09-10T02_11_25Z_standard/session-profiles.json"
+      ]
+    },
+    {
+      "item": "controller-only acceptance walk (§36) + input-loss walk (§38)",
+      "state": "SOFTWARE_COMPLETE",
+      "blocker": "ENVIRONMENT",
+      "detail": "Shell, focus graph, Guide ownership, input-loss survival (zero-controller selftest) runtime-verified; the physical walk requires a controller attached to DevKit-0.",
+      "evidence_refs": [
+        "evidence/sessions/"
+      ]
+    }
+  ],
+  "verified_items": [
+    "Immutable qualification evidence (runs/<run-id>/, append-only index.json, no overwrite)",
+    "Conservative aggregation (dc-qualify-report; EVIDENCE_POLICY.md as versioned data)",
+    "Profile derivation with reason codes; host (DCP-*) vs session (DCX-*) separation (ADR-0022)",
+    "CPU qualification incl. sustained (continuous-load methodology, CV ~4% quiet)",
+    "GPU raster/compute/copy qualification via GPU timestamp queries; sustained GPU",
+    "Memory qualification (bandwidth, pressure-safe)",
+    "Storage qualification (seq/random/sustained with latency percentiles)",
+    "Display three-state VRR model; VRR presentation path ACTIVELY_PROVEN via dc-displayprobe (command-queue fix)",
+    "Quantitative HDR discovery (Advanced Color, luminance, primaries, SDR white)",
+    "Vulkan host discovery (loader 1.4.341, RTX 5070 Ti, ray-query + mesh shaders)",
+    "GameInput primary backend (static-link; system-button callback + focus policy; Guide/Share owned)",
+    "SDL3 fallback + XInput floor behind IInputBackend; reconciliation policy code-enforced in ProbeInput (14 tests)",
+    "Staged certification (dc-stage-certification: OneDrive-exit staging, thermal guardrail, provenance manifest)",
+    "Session state machine with journaled transitions and timeout recovery",
+    "Durable append-only session journal (survives process death)",
+    "Title supervisor (Job Object containment, crash classification, no orphans)",
+    "Typed launch contract (dc.title-context/1 envelope; cross-process transport proof; ADR-0024)",
+    "Native D3D12 sample title consuming context + semantic input",
+    "Guide ownership: suspend through QR1 lifecycle (SuspendGame/ResumeGame with ACK round-trip)",
+    "Display-topology reaction: WM_DISPLAYCHANGE -> live re-enum -> stale DCX invalidation",
+    "Audio-topology reaction: MMDevice watcher -> journaled event, title keeps running",
+    "Controller-first shell (HOME/LIBRARY/SYSTEM/GUIDE, deterministic focus graphs)",
+    "Crash recovery E2E (force-kill -> TITLE_CRASHED -> SHELL_RECOVERING -> SHELL_ACTIVE)"
+  ],
+  "environment_limitations": [
+    "DevKit-0 driver 32.0.16.1078: DXR dispatch device-removal (gpu.rt_inline)",
+    "OS D3D12 runtime: DXIL-library state-object rejection (gpu.rt_pipeline)",
+    "Laptop panel 2560x1600@240 SDR: no UHD mode, HDR inactive",
+    "Storage p99 under load exceeds LOWLATENCY requirement (gates DCX-VRR via host profile)",
+    "No physical controller attached during verification runs",
+    "OneDrive repo path: certification runs must use dc-stage-certification staging"
+  ],
+  "evidence_refs": [
+    "evidence/qualification/index.json",
+    "evidence/qualification/runs/2026-09-10T02_11_25Z_standard/",
+    "evidence/sessions/",
+    "evidence/host-capability.json",
+    "docs/policy/EVIDENCE_POLICY.md",
+    "docs/adr/ADR-0024-title-launch-context-transport.md",
+    "CURRENT_STATE.md"
+  ]
+}

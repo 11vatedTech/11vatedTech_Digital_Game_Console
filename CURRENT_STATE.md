@@ -185,6 +185,47 @@ registry in `formats/profiles/` (DCP-2026-*, machine-readable). Governance:
   `input_reconcile.hpp` pure policy (GameInput → SDL3 → XInput;
   conservative duplicate suppression; deterministic slots), applied in
   `ProbeInput`; 14 tests covering all §K scenarios.
+- **§19 QR1 native lifecycle boundary — RUNTIME_VERIFIED 2026-09-10**:
+  `ITitleSupervisor::SuspendGame/ResumeGame` (message channel DC_WM_SUSPEND/
+  RESUME in the WM_APP range + job-wide named-event broadcast, ACK event
+  pre-created by the supervisor to close the acknowledgment race; a missing
+  ACK after delivery is `Failed`, not silent success). The sample title
+  checkpoints (render loop idles while suspended) and ACKs through the
+  shared name derivation. Guide→suspend and Resume now flow through this
+  real boundary; selftest proves the full suspend→resume round-trip with
+  `ok` on both ACKs. Compatibility titles remain best-effort (state machine
+  owns policy); no arbitrary GPU-heavy checkpointing is claimed (C12 canon).
+- **§18 audio-topology reaction — RUNTIME_VERIFIED 2026-09-10**:
+  `AudioEndpointWatcher` (IMMNotificationClient, COM STA) → journaled
+  `TopologyChanged` note + SYSTEM view endpoint refresh + toast; the title
+  is deliberately untouched (audio route changes never restart or suspend a
+  running title). Verified via selftest-driven flag through the real
+  handler path (1 endpoint enumerated live).
+- **§25 deliverable — evidence/milestones/DK0-M1-M2-status.json**:
+  machine-readable milestone truth (implementation / verification /
+  certification states, blocked items with blockers and evidence refs).
+- **DK0-M1 capability matrix (2026-09-10)** —
+
+| Capability | Implemented | Verified | Certified | Blocker |
+|---|---|---|---|---|
+| CPU qualification | yes | RUNTIME_VERIFIED | dev-baseline | — |
+| GPU qualification | yes | RUNTIME_VERIFIED | dev-baseline | — |
+| memory qualification | yes | RUNTIME_VERIFIED | dev-baseline | — |
+| storage qualification | yes | RUNTIME_VERIFIED | dev-baseline | OneDrive (staged runs used) |
+| RT discovery | yes | RUNTIME_VERIFIED | — | — |
+| RT pipeline | yes | UNIT_TESTED | no | DRIVER (rt_inline) / ENV (state object) |
+| display discovery | yes | RUNTIME_VERIFIED | dev-baseline | — |
+| HDR presentation | discovery yes | truth recorded | no | HDR_INACTIVE (panel) |
+| VRR proof | yes | ACTIVELY_PROVEN | dev-baseline | — |
+| Vulkan discovery | yes | RUNTIME_VERIFIED | — | — |
+| GameInput | yes | RUNTIME_VERIFIED | — | — |
+| SDL3 | yes | RUNTIME_VERIFIED (discovery+dedup) | — | — |
+| staged certification | yes | RUNTIME_VERIFIED | standard run captured | — |
+
+  Verdict per ADR-0023: **DK0-M1 IMPLEMENTATION-CLOSED**;
+  **CERTIFICATION-BLOCKED-BY-ENVIRONMENT** (RT driver, HDR/UHD panel,
+  storage p99). The milestone is not "failed" — the blockers are recorded
+  truthfully and re-test on driver/display change.
 - **Post-reboot verification + truth corrections — 2026-09-10**:
   - Full suite 8/8 CTest + contract gate green after reboot (SAC off).
   - displayprobe swapchain INVALID_CALL root-caused to invalid API usage

@@ -33,6 +33,28 @@ struct TitleExitReport {
     bool job_cleanup_complete = true; // all child processes were killed
 };
 
+// Result of a SuspendGame/ResumeGame request (§19 QR1 boundary).
+enum class TitleNotifyResult {
+    Ok,
+    NotRunning,
+    Failed,
+};
+const char* TitleNotifyResultName(TitleNotifyResult r);
+
+// §19 QR1 lifecycle messages (window channel, WM_APP range — Win32 guarantees
+// titles forward unknown WM_APP+X to DefWindowProc, so old titles ignore
+// them safely). Shared by supervisor (sender) and title (handler).
+inline constexpr uint32_t kTitleMsgSuspend = 0xD350; // WM_APP|'SP'
+inline constexpr uint32_t kTitleMsgResume  = 0xD352; // WM_APP|'SR'
+
+// Event-name derivation shared by supervisor and title: the ACK event is
+// "DC_TITLE_EVT_<title_pid>_ACK"; the title creates it at startup (auto-reset)
+// and SetEvents it when a checkpoint/resume completes.
+inline void TitleEventName(const wchar_t* what, unsigned long pid,
+                           wchar_t* out, size_t cch) {
+    _snwprintf_s(out, cch, _TRUNCATE, L"DC_TITLE_EVT_%lu_%s", pid, what);
+}
+
 class ITitleSupervisor {
 public:
     virtual ~ITitleSupervisor() = default;
@@ -73,6 +95,14 @@ public:
     // Force-kill the entire job tree immediately.
     virtual void TerminateTree() = 0;
 
+    // §19 QR1 boundary — native title-authored checkpointing. Sends the
+    // lifecycle signal to the title (message to its windows + broadcast
+    // event to the whole job tree so helper processes see it too), waits a
+    // bounded time for acknowledgment, then releases the tree. The session
+    // state machine remains the sole owner of TITLE_SUSPENDED semantics.
+    virtual TitleNotifyResult SuspendGame(uint32_t timeout_ms) = 0;
+    virtual TitleNotifyResult ResumeGame(uint32_t timeout_ms) = 0;
+
     // Human-readable exit classification for the journal.
     static const char* ExitKindName(TitleExitKind k) {
         switch (k) {
@@ -88,5 +118,8 @@ public:
 
 ITitleSupervisor* CreateTitleSupervisor();  // Windows implementation
 void DestroyTitleSupervisor(ITitleSupervisor* s);
+
+const char* ExitKindName(TitleExitKind k);
+const char* TitleNotifyResultName(TitleNotifyResult r);
 
 } // namespace dc

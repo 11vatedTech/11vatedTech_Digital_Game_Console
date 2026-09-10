@@ -1,0 +1,14 @@
+{"session":"sess-20260910T193256Z","from":"SESSION_OFF","to":"SESSION_STARTING","reason":"boot_sequence","monotonic_ns":0,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T193256Z","from":"SESSION_STARTING","to":"HOST_VALIDATING","reason":"boot_sequence","monotonic_ns":194200,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T193256Z","from":"HOST_VALIDATING","to":"SESSION_CAPABILITIES_RESOLVING","reason":"boot_sequence","monotonic_ns":223200,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T193256Z","from":"SESSION_CAPABILITIES_RESOLVING","to":"INPUT_ACQUIRING","reason":"boot_sequence","monotonic_ns":241100,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T193256Z","from":"INPUT_ACQUIRING","to":"SHELL_STARTING","reason":"boot_sequence","monotonic_ns":1335000,"correlation":1,"timed_out":false}
+{"session":"sess-20260910T193256Z","from":"SHELL_STARTING","to":"SHELL_ACTIVE","reason":"boot_sequence","monotonic_ns":1365700,"correlation":1,"timed_out":false}
+{"session":"","from":"SHELL_ACTIVE","to":"TITLE_REQUESTED","reason":"requested","monotonic_ns":13347800,"correlation":1,"timed_out":false}
+{"session":"","from":"TITLE_REQUESTED","to":"TITLE_VALIDATING","reason":"requested","monotonic_ns":13358900,"correlation":1,"timed_out":false}
+{"session":"","from":"TITLE_VALIDATING","to":"TITLE_STARTING","reason":"requested","monotonic_ns":13448500,"correlation":1,"timed_out":false}
+{"session":"","from":"TITLE_STARTING","to":"TITLE_ACTIVE","reason":"requested","monotonic_ns":52106000,"correlation":1,"timed_out":false}
+{"session":"","from":"TITLE_ACTIVE","to":"TITLE_STOPPING","reason":"topology_changed","monotonic_ns":397151600,"correlation":2,"timed_out":false}
+{"session":"","from":"TITLE_STOPPING","to":"SHELL_RECOVERING","reason":"topology_changed","monotonic_ns":397204200,"correlation":2,"timed_out":false}
+{"session":"","from":"SHELL_RECOVERING","to":"SHELL_ACTIVE","reason":"topology_changed","monotonic_ns":397215700,"correlation":2,"timed_out":false}
+{"session":"sess-20260910T193256Z","from":"SHELL_ACTIVE","to":"SESSION_EXIT","reason":"user_exit","monotonic_ns":1550462300,"correlation":2,"timed_out":false}

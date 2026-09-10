@@ -8,6 +8,7 @@
 #include "dc/input.hpp"
 #include "dc/title_context.hpp"
 #include "dc/title_context_json.hpp"
+#include "dc/title_supervisor.hpp"
 #include <windows.h>
 #include <d3d12.h>
 #include <dxgi1_4.h>
@@ -49,6 +50,11 @@ dc::TitleLaunchContext LoadLaunchContext(bool* received) {
     return ctx;
 }
 
+// §19 QR1 lifecycle state: platform-owned suspend/resume signals.
+// SUSPENDED = checkpoint done, render loop idles; RESUMED = normal render.
+enum class LifeState { Running, Suspended };
+volatile LifeState g_life = LifeState::Running;
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
         case WM_CLOSE:
@@ -57,8 +63,37 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case WM_DESTROY:
             PostQuitMessage(0);
             return 0;
+        default:
+            // Platform lifecycle signals (§19). Handled here — never in
+            // gameplay input; titles cannot intercept or own them.
+            if (msg == dc::kTitleMsgSuspend) {
+                // Checkpoint boundary (QR1): flush state, then ACK. The
+                // supervisor pre-created the ACK event; open and signal it.
+                g_life = LifeState::Suspended;
+                std::printf("native-minimal: checkpoint (suspend)\n");
+                std::fflush(stdout);
+                wchar_t ack[128];
+                dc::TitleEventName(L"ACK", GetCurrentProcessId(), ack, 128);
+                if (HANDLE h = OpenEventW(EVENT_MODIFY_STATE, FALSE, ack)) {
+                    SetEvent(h);
+                    CloseHandle(h);
+                }
+                return 0;
+            }
+            if (msg == dc::kTitleMsgResume) {
+                g_life = LifeState::Running;
+                std::printf("native-minimal: resume\n");
+                std::fflush(stdout);
+                wchar_t ack[128];
+                dc::TitleEventName(L"ACK", GetCurrentProcessId(), ack, 128);
+                if (HANDLE h = OpenEventW(EVENT_MODIFY_STATE, FALSE, ack)) {
+                    SetEvent(h);
+                    CloseHandle(h);
+                }
+                return 0;
+            }
+            return DefWindowProcA(hwnd, msg, wParam, lParam);
     }
-    return DefWindowProcA(hwnd, msg, wParam, lParam);
 }
 
 struct D3D12Title {
@@ -264,7 +299,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
             if (gp.buttons & (1u << static_cast<uint32_t>(dc::GamepadButton::South)))
                 pulse = 1.0f;                             // accept = full bright
         }
-        title.Render(pulse);
+        // §19 QR1: while suspended the title does not render — checkpoint
+        // holds the visual state; the platform owns the screen via the shell.
+        if (g_life == LifeState::Running) {
+            title.Render(pulse);
+        }
         Sleep(16);  // ~60 Hz cadence for the sample; not the platform loop
     }
 }
