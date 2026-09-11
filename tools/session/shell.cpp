@@ -22,6 +22,8 @@
 #include "../../runtime/core/dc/json.hpp"
 #include "../../runtime/core/dc/focus_graph.hpp"
 #include "../../runtime/core/dc/input.hpp"
+#include "../../runtime/core/dc/package.hpp"
+#include "../../runtime/core/dc/package_store.hpp"
 #include "../../runtime/host/dc/title_supervisor.hpp"
 
 #define WIN32_LEAN_AND_MEAN
@@ -543,7 +545,19 @@ public:
     ShellApp(Frame& f, Surface& s, const TitleRegistry& reg, HostView hv,
              dcsess::SessionJournal& j, SessionStateMachine& sm, uint64_t& corr)
         : frame_(f), surface_(s), reg_(reg), host_(hv), journal_(j), sm_(sm),
-          corr_(corr) {}
+          corr_(corr) {
+        // DK0-M3: package library root — DC_LIBRARY_DIR overrides; else the
+        // repo-local library/ when it exists (offline-first, local store).
+        if (const char* env = std::getenv("DC_LIBRARY_DIR")) {
+            library_root_ = env;
+        } else {
+            std::error_code ec;
+            fs::path local = fs::path("library");
+            if (fs::exists(local, ec)) library_root_ = local.string();
+        }
+        if (!library_root_.empty())
+            library_ = std::make_unique<dc::package::Library>(library_root_);
+    }
 
     bool Init();
     int Run(int selftest_frames);
@@ -585,6 +599,14 @@ private:
 
 private:
     bool LaunchTitle(const TitleEntry& e);
+    // DK0-M3: launch from the INSTALLED PACKAGE (not the source tree).
+    // Resolves the active generation, runs host-profile preflight, and
+    // launches the packaged executable through the supervisor.
+    bool LaunchPackageTitle(const TitleEntry& e);
+    // Host-profile preflight (directive §15): every required DCP-* must be
+    // claimed by the current host evidence; DCX-* requirements likewise.
+    // Returns false and journals the precise reason on failure.
+    bool Preflight(const TitleEntry& e);
     void CloseTitle(TransitionReason r);
     void PollTitleExit();
     void ProcessTopologyChange();
@@ -615,6 +637,13 @@ private:
     ITitleSupervisor* supervisor_ = nullptr;
     std::string active_title_;
     bool title_active_ = false;
+
+    // DK0-M3 package library (ADR-0025): the authoritative title source.
+    // Empty root disables package mode (development fallback to the registry
+    // entrypoint); DC_LIBRARY_DIR selects it, otherwise
+    // <repo>/library when present.
+    std::unique_ptr<dc::package::Library> library_;
+    std::string library_root_;
 
     View view_ = View::Home;
     FocusGraph fg_home_, fg_lib_, fg_sys_;
@@ -911,7 +940,115 @@ void ShellApp::Confirm() {
     }
 }
 
+// Host-profile preflight (DK0-M3 §15). Host (DCP-*) and session (DCX-*)
+// requirements are checked against distinct evidence (ADR-0022), never
+// inferred from each other. Fail closed with a precise reason.
+bool ShellApp::Preflight(const TitleEntry& e) {
+    auto has = [](const std::vector<std::string>& v, const std::string& id) {
+        for (const auto& s : v) if (s == id) return true;
+        return false;
+    };
+    for (const auto& req : e.required_host_profiles) {
+        if (!has(host_.dcp, req)) {
+            std::printf("[title] preflight: %s not satisfied (%s)\n", req.c_str(),
+                        host_.loaded ? "host evidence" : "no host evidence");
+            toast_ = "Cannot start: host requirement " + req + " not satisfied";
+            toast_until_ = GetTickCount64() + 5000;
+            return false;
+        }
+    }
+    for (const auto& req : e.required_session_profiles) {
+        if (!has(host_.dcx, req)) {
+            std::printf("[title] preflight: session %s not satisfied\n", req.c_str());
+            toast_ = "Cannot start: session requirement " + req + " not satisfied";
+            toast_until_ = GetTickCount64() + 5000;
+            return false;
+        }
+    }
+    return true;
+}
+
+// DK0-M3: launch the installed package's executable from its generation
+// view. The source-tree path is only a development fallback.
+bool ShellApp::LaunchPackageTitle(const TitleEntry& e) {
+    if (!library_) return false;
+    auto pkg = library_->GetActive(e.title_id);
+    if (!pkg || pkg->entrypoint.empty()) return false;
+
+    // The packaged executable must physically exist in the generation view.
+    fs::path exe = fs::path(pkg->install_dir) / pkg->entrypoint;
+    std::error_code ec;
+    if (!fs::exists(exe, ec)) {
+        std::printf("[title] package view incomplete: %s missing\n", exe.string().c_str());
+        return false;
+    }
+
+    Trans(SessionState::TitleRequested, TransitionReason::Requested);
+    Trans(SessionState::TitleValidating, TransitionReason::Requested);
+    if (!Preflight(e)) {
+        Trans(SessionState::ShellActive, TransitionReason::FatalError);
+        return false;
+    }
+    Trans(SessionState::TitleStarting, TransitionReason::Requested);
+    supervisor_ = CreateTitleSupervisor();
+
+    TitleLaunchContext ctx;
+    ctx.title_id = e.title_id;
+    ctx.title_version = pkg->version;
+    ctx.session_id = session_id_;
+    ctx.user_id = 1;  // offline single-user profile (C9)
+    ctx.controller_required = e.controller_required;
+    ctx.offline_launch = e.offline_launch;
+    ctx.guide_owned_by_platform = true;
+    for (const auto& d : host_.displays) {
+        if (d.primary && d.w && d.h) {
+            ctx.display_width = d.w;
+            ctx.display_height = d.h;
+            ctx.refresh_numerator = static_cast<uint32_t>(d.hz * 1000.0);
+            ctx.refresh_denominator = 1000;
+            break;
+        }
+    }
+    {
+        fs::path cap = "evidence/host-capability.json";
+        if (const char* env = std::getenv("DC_HOSTCAP_PATH")) cap = env;
+        std::ifstream f(cap, std::ios::binary);
+        if (f) {
+            std::string text((std::istreambuf_iterator<char>(f)),
+                             std::istreambuf_iterator<char>());
+            std::string perr;
+            auto parsed = json::Parse(text, perr);
+            if (parsed) ctx.host_capability_json = text;
+        }
+    }
+    ctx.active_session_profiles = host_.dcx;
+
+    // Working directory = the generation view so relative asset paths inside
+    // the package resolve correctly (the package IS the install root).
+    auto launch = supervisor_->Launch(exe.string(), pkg->install_dir, "", ctx);
+    if (!launch.ok) {
+        std::fprintf(stderr, "[title] package launch failed: %s\n", launch.error.c_str());
+        Trans(SessionState::ShellRecovering, TransitionReason::FatalError);
+        Trans(SessionState::ShellActive, TransitionReason::TitleCrash);
+        DestroyTitleSupervisor(supervisor_);
+        supervisor_ = nullptr;
+        return false;
+    }
+    std::printf("[title] launched PACKAGED %s g=%s pid=%u pkg=%s\n", e.title_id.c_str(),
+                pkg->generation.c_str(), launch.process_id, pkg->package_id.c_str());
+    Trans(SessionState::TitleActive, TransitionReason::Requested);
+    last_title_pid_ = launch.process_id;
+    title_active_ = true;
+    active_title_ = e.title_id;
+    ++corr_;
+    return true;
+}
+
 bool ShellApp::LaunchTitle(const TitleEntry& e) {
+    // Package path first (ADR-0025): the package is the authoritative title
+    // source. Registry entrypoint is the development fallback only.
+    if (LaunchPackageTitle(e)) return true;
+
     Trans(SessionState::TitleRequested, TransitionReason::Requested);
     Trans(SessionState::TitleValidating, TransitionReason::Requested);
     fs::path exe = fs::absolute(e.entrypoint);

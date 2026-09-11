@@ -1,0 +1,5 @@
+Fidelity Lab — the first package-defined Digital Console title.
+Built for the .11g native package contract (DK0-M3).
+
+This title proves the runtime chain:
+  package -> verify -> install -> activate -> supervise -> play -> exit

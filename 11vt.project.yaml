@@ -73,17 +73,21 @@ milestones:
       sustained performance probe.
   - id: DK0-M2
     name: Console Session
-    status: active  # 2026-09-10: substrate RUNTIME_VERIFIED incl. §39 topology
-    # reaction (injected WM_DISPLAYCHANGE → live re-enum → stale-DCX
-    # invalidation), typed launch contract (ADR-0024, canon §16 embryo,
-    # cross-process transport proof), §K controller dedup policy (code-
-    # enforced in ProbeInput). 10/10 CTest + contract gate green.
+    status: runtime-verified  # 2026-09-10: substrate RUNTIME_VERIFIED incl.
+    # §39 topology reaction, typed launch contract (ADR-0024), §K dedup,
+    # QR1 lifecycle + audio-topology reaction. 14/14 CTest green.
     # remainder = physical controller-only acceptance walk (§36) + input-loss
     # walk (§38) — needs a controller attached (software side complete).
   - id: DK0-M3
     name: Minimal native title (.11g)
-    status: seed-present  # launch contract + registry entry are the .11g
-    # embryo (ADR-0024); packaging layer pending
+    status: runtime-verified  # 2026-09-10: ADR-0025 package contract
+    # (content identity, deterministic dc-pack, reason-coded verification,
+    # CNG ECDSA signing, content store, generations + atomic activation +
+    # rollback, save boundary); shell launches the INSTALLED package
+    # (CTest fixture + selftest, PACKAGED marker, QR1 ok/ok). Milestone
+    # status: evidence/milestones/DK0-M3-status.json.
+    # remainder = production signing trust anchor (unsigned dev mode
+    # documented); §36 controller walk against the installed package.
   - id: DK0-M4
     name: Fidelity Lab (VFR proof)
     status: pending

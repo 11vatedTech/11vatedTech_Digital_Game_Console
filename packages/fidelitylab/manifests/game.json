@@ -1,0 +1,24 @@
+{
+  "schema": "dc.game/1",
+  "id": "tech.11vated.fidelitylab",
+  "version": "0.1.0",
+  "name": "Fidelity Lab",
+  "publisher": "11vatedTech",
+  "entrypoints": {
+    "windows-x64": "windows-x64/FidelityLab.exe"
+  },
+  "required_profiles": ["DCP-2026-BASE"],
+  "optional_profiles": ["DCP-2026-HDR", "DCP-2026-RENDER-UHD120"],
+  "controller_required": true,
+  "offline_launch": true,
+  "accessibility": {
+    "remapping": false,
+    "reduced_motion": false,
+    "subtitles": false,
+    "text_scaling": false
+  },
+  "mods": "disabled",
+  "network": {
+    "permissions": []
+  }
+}

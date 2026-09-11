@@ -13,6 +13,9 @@ endif()
 
 enable_testing()
 
+# Git Bash is the shell for helper scripts on Windows hosts (POSIX-style).
+find_program(BASH_EXECUTABLE bash REQUIRED)
+
 # ---------------------------------------------------------------------------
 # runtime/core — host-agnostic platform models and interfaces (canon §39.1)
 # ---------------------------------------------------------------------------
@@ -24,6 +27,11 @@ add_library(dc_core STATIC
     runtime/core/dc/session.cpp
     runtime/core/dc/title_registry.cpp
     runtime/core/dc/focus_graph.cpp
+    runtime/core/dc/hash.cpp
+    runtime/core/dc/package.cpp
+    runtime/core/dc/package_container.cpp
+    runtime/core/dc/package_store.cpp
+    runtime/core/dc/save_boundary.cpp
 )
 target_include_directories(dc_core PUBLIC runtime/core)
 target_compile_features(dc_core PUBLIC cxx_std_23)
@@ -52,6 +60,7 @@ if (WIN32)
         hosts/windows/probe_sdl3.cpp
         hosts/windows/title_supervisor.cpp
         hosts/windows/input_router.cpp
+        hosts/windows/package_signing_bcrypt.cpp
         hosts/windows/guids.cpp
         hosts/windows/bench/bench_cpu.cpp
         hosts/windows/bench/bench_memory.cpp
@@ -94,6 +103,18 @@ if (WIN32)
     add_executable(dc-stage-certification tools/stagecert/main.cpp)
 
     # -----------------------------------------------------------------------
+    # .11g package toolchain (DK0-M3; ADR-0025)
+    # -----------------------------------------------------------------------
+    add_executable(dc-pack tools/pack/main.cpp)
+    target_link_libraries(dc-pack PRIVATE dc_core dc_host_windows)
+
+    add_executable(dc-verify-package tools/verify-package/main.cpp)
+    target_link_libraries(dc-verify-package PRIVATE dc_core dc_host_windows)
+
+    add_executable(dc-packaged tools/packaged/main.cpp)
+    target_link_libraries(dc-packaged PRIVATE dc_core dc_host_windows)
+
+    # -----------------------------------------------------------------------
     # samples/native-minimal — the first real native Digital Console title
     # (DK0-M2 §29). WinMain + D3D12; launched by dc-title-supervisor.
     # -----------------------------------------------------------------------
@@ -106,11 +127,24 @@ if (WIN32)
     add_executable(dc-session tools/session/main.cpp tools/session/shell.cpp)
     target_link_libraries(dc-session PRIVATE dc_core dc_host_windows dxgi d3d12)
     # Interactive-shell selftest: boots, renders N frames, exits cleanly.
+    # DK0-M3: the launch target is the INSTALLED PACKAGE (ADR-0025) — a
+    # fixture installs build/Release/FidelityLab.11g into the console library
+    # first; the selftest runs with DC_LIBRARY_DIR pointed at it and fails if
+    # the fixture failed (tests/contract/test_package_e2e covers the chain
+    # itself in a temp root; this fixture proves the SHELL consumes it).
+    set(DC_LIBRARY_ROOT "$ENV{LOCALAPPDATA}/11vated/console/library")
+    add_test(NAME package_library_install
+             COMMAND ${BASH_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/pack/install_library.sh "${DC_LIBRARY_ROOT}"
+             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+    set_tests_properties(package_library_install PROPERTIES
+        FIXTURES_SETUP dc_library)
     add_test(NAME session_shell_selftest
              COMMAND dc-session --shell --selftest 90
              WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-    set_tests_properties(session_shell_selftest PROPERTIES ENVIRONMENT
-        "DC_REGISTRY_DIR=${CMAKE_SOURCE_DIR}/registry;DC_JOURNAL_DIR=${CMAKE_SOURCE_DIR}/evidence/sessions")
+    set_tests_properties(session_shell_selftest PROPERTIES
+        DEPENDS package_library_install
+        FIXTURES_REQUIRED dc_library
+        ENVIRONMENT "DC_REGISTRY_DIR=${CMAKE_SOURCE_DIR}/registry;DC_JOURNAL_DIR=${CMAKE_SOURCE_DIR}/evidence/sessions;DC_LIBRARY_DIR=${DC_LIBRARY_ROOT}")
     target_link_libraries(dc-qualify-report PRIVATE dc_core)
 endif()
 
@@ -154,4 +188,17 @@ if (WIN32)
     add_executable(test_focus_graph tests/contract/test_focus_graph.cpp)
     target_link_libraries(test_focus_graph PRIVATE dc_core)
     add_test(NAME focus_graph COMMAND test_focus_graph)
+
+    add_executable(test_package_contract tests/contract/test_package_contract.cpp)
+    target_link_libraries(test_package_contract PRIVATE dc_core)
+    add_test(NAME package_contract COMMAND test_package_contract WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+    add_executable(test_package_signing tests/contract/test_package_signing.cpp)
+    target_link_libraries(test_package_signing PRIVATE dc_core dc_host_windows)
+    add_test(NAME package_signing COMMAND test_package_signing)
+
+    add_executable(test_package_e2e tests/contract/test_package_e2e.cpp)
+    target_link_libraries(test_package_e2e PRIVATE dc_core dc_host_windows)
+    add_test(NAME package_e2e COMMAND test_package_e2e WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+    set_tests_properties(package_e2e PROPERTIES DEPENDS dc-verify-package)
 endif()

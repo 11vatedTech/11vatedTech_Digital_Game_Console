@@ -1,0 +1,135 @@
+{
+  "schema": "dc.milestone-status/1",
+  "milestone": "DK0-M3",
+  "generated_utc": "2026-09-10T19:05:00Z",
+  "source_commit": "de2b340 (DK0-M2 continuation base; M3 deltas uncommitted at generation time)",
+  "implementation_state": "IMPLEMENTATION_CLOSED",
+  "verification_state": "RUNTIME_VERIFIED",
+  "certification_state": "NOT_APPLICABLE_LOCAL_DEVELOPMENT_TRUST",
+  "package_format_state": "RUNTIME_VERIFIED",
+  "install_state": "RUNTIME_VERIFIED",
+  "activation_state": "RUNTIME_VERIFIED",
+  "rollback_state": "UNIT_TESTED",
+  "determinism_state": "UNIT_TESTED",
+  "security_state": "DESIGNED_IMPLEMENTED_UNSIGNED_ONLY",
+  "blocked_items": [
+    {
+      "item": "signature-bearing package",
+      "state": "IMPLEMENTED_UNIT_TESTED",
+      "blocker": "ENVIRONMENT_POLICY",
+      "detail": "CNG ECDSA P-256 sign/verify implemented and unit-tested (tamper detection, four trust states). No production signing key exists yet; the console library runs the documented --allow-unsigned development policy (ADR-0025 §trust). Production trust anchor is a future milestone.",
+      "evidence_refs": [
+        "tests/contract/test_package_signing.cpp",
+        "docs/adr/ADR-0025-package-format-identity-activation.md"
+      ]
+    }
+  ],
+  "verified_items": [
+    {
+      "item": "SHA-256 content identity (NIST FIPS 180-4)",
+      "state": "UNIT_TESTED_RUNTIME_VERIFIED",
+      "detail": "Official NIST vectors pass; cross-checked against Windows BCrypt on real data. Rename-invariance and modification-sensitivity proven.",
+      "evidence_refs": ["tests/contract/test_package_contract.cpp"]
+    },
+    {
+      "item": "Deterministic packaging",
+      "state": "UNIT_TESTED",
+      "detail": "Identical inputs produce byte-identical package metadata and identity; one-byte source change produces a different identity. No timestamps/randomness/machine paths in canonical bytes.",
+      "evidence_refs": ["tests/contract/test_package_contract.cpp"]
+    },
+    {
+      "item": "Container format (.11g physical representation)",
+      "state": "UNIT_TESTED_RUNTIME_VERIFIED",
+      "detail": "Binary container: magic 'DC11G', u32 member count, per-member path+len+bytes. Truncation and corruption fail closed with reason codes.",
+      "evidence_refs": ["runtime/core/dc/package_container.hpp", "tests/contract/test_package_contract.cpp"]
+    },
+    {
+      "item": "Corruption battery",
+      "state": "UNIT_TESTED",
+      "detail": "Corrupted manifest, wrong hash, missing object, unsupported platform, bad semver, truncation, foreign schema — every case fails closed with a structured reason code.",
+      "evidence_refs": ["tests/contract/test_package_contract.cpp"]
+    },
+    {
+      "item": "Content-addressed store + generations + atomic activation",
+      "state": "UNIT_TESTED_RUNTIME_VERIFIED",
+      "detail": "Objects stored under store/objects/sha256/<h2>/<h62>; generation views fully materialized and byte-verified before the active.json pointer swap. Failed installs leave the previous generation active (tested).",
+      "evidence_refs": ["runtime/core/dc/package_store.cpp", "tests/contract/test_package_contract.cpp"]
+    },
+    {
+      "item": "Rollback",
+      "state": "UNIT_TESTED",
+      "detail": "ActivateGeneration points active.json at any fully validated prior generation; generation metadata records package_id/version provenance.",
+      "evidence_refs": ["tests/contract/test_package_contract.cpp"]
+    },
+    {
+      "item": "Full acceptance chain with the PACKAGED artifact (§24)",
+      "state": "RUNTIME_VERIFIED",
+      "detail": "pack -> verify -> install -> activate -> SHELL launches the installed generation's executable (not the source tree) through the supervisor with typed launch context -> QR1 suspend/resume (ok/ok) -> clean exit -> SHELL_ACTIVE. Proven by CTest fixture (package_library_install) + session_shell_selftest with DC_LIBRARY_DIR, and by test_package_e2e (pack/verify/install/activate/launch/update/corrupt-rollback in a temp root).",
+      "evidence_refs": [
+        "tests/contract/test_package_e2e.cpp",
+        "CMakeLists.txt (package_library_install fixture)",
+        "tools/pack/fidelitylab.sh",
+        "tools/pack/install_library.sh"
+      ]
+    },
+    {
+      "item": "Package update path (§25)",
+      "state": "UNIT_TESTED",
+      "detail": "v0.1.0 installed and activated, v0.1.1 imports/activates/launches; a corrupted v0.1.2 fails closed and v0.1.1 remains active.",
+      "evidence_refs": ["tests/contract/test_package_e2e.cpp"]
+    },
+    {
+      "item": "Idempotent reinstall",
+      "state": "RUNTIME_VERIFIED",
+      "detail": "Re-installing the identical package (same content identity + version) no longer stacks generations; repeated CTest runs keep the same active generation. Corrupted variants still fail closed.",
+      "evidence_refs": ["runtime/core/dc/package_store.cpp", "CTest session_shell_selftest logs"]
+    },
+    {
+      "item": "Host-profile preflight from package metadata",
+      "state": "RUNTIME_VERIFIED",
+      "detail": "LaunchTitle resolves required_profiles from the installed package and evaluates them against measured DCP claims before TitleStarting; unsatisfied => toast + refusal, no degraded launch.",
+      "evidence_refs": ["tools/session/shell.cpp (Preflight/LaunchPackageTitle)"]
+    },
+    {
+      "item": "Save boundary (§18)",
+      "state": "UNIT_TESTED",
+      "detail": "Saves owned by (user_id, game_id, save_schema); patch releases sharing save_schema remain recognized; incompatible schema requires explicit declared migration, never silent destruction.",
+      "evidence_refs": ["runtime/core/dc/save_boundary.cpp", "tests/contract/test_package_contract.cpp"]
+    },
+    {
+      "item": "Lifecycle manifest carried to runtime (§17)",
+      "state": "RUNTIME_VERIFIED",
+      "detail": "dc.lifecycle/1 fields (suspend_ack_deadline_ms, quick_resume_tier, honors_exit_request, flushes_saves) flow through InstalledPackage into the supervisor's typed launch context.",
+      "evidence_refs": ["packages/fidelitylab/manifests/lifecycle.json", "runtime/core/dc/package_store.cpp"]
+    },
+    {
+      "item": "QR1 cold-start race fix",
+      "state": "RUNTIME_VERIFIED",
+      "detail": "Supervisor now re-enumerates title windows on a bounded grace loop so a Guide-suspend arriving before first window creation is delivered instead of silently lost; suspend/resume round-trip now ok/ok on the packaged title.",
+      "evidence_refs": ["hosts/windows/title_supervisor.cpp", "CTest session_shell_selftest logs"]
+    }
+  ],
+  "environment_limitations": [
+    "No controller attached: package launch proven by automated selftest (input polling present, navigation clicks simulated by the framework), not by the §36 physical controller-only walk.",
+    "Signing trust anchor: unsigned development packages only; production signing policy deferred (documented, not hidden)."
+  ],
+  "evidence_refs": [
+    "tests/contract/test_package_contract.cpp",
+    "tests/contract/test_package_signing.cpp",
+    "tests/contract/test_package_e2e.cpp",
+    "docs/adr/ADR-0025-package-format-identity-activation.md",
+    "docs/developer/DK0-M3-package-workflow.md",
+    "packages/fidelitylab/",
+    "tools/pack/",
+    "tools/verify-package/",
+    "tools/packaged/"
+  ],
+  "test_counts": {
+    "ctest_total": 14,
+    "ctest_passed": 14,
+    "package_contract_checks": 57,
+    "package_signing_checks": 21,
+    "package_e2e_checks": 11,
+    "json_evidence_files_valid": 68
+  }
+}

@@ -249,6 +249,48 @@ registry in `formats/profiles/` (DCP-2026-*, machine-readable). Governance:
     evidenced on a quiet system.
 - Then canon §43 order: M3 native .11g title → M4 Fidelity Lab (VFR) →
   M5 certification runner.
+- **DK0-M3 `.11g` package vertical slice — RUNTIME_VERIFIED 2026-09-10**
+  (ADR-0025; milestone status `evidence/milestones/DK0-M3-status.json`):
+  - **Package contract** (`runtime/core/dc/package*.hpp/cpp`): logical model
+    separate from the physical container (`DC11G` magic, member table) and
+    the content-addressed store (`store/objects/sha256/<h2>/<h62>`).
+    Identity = SHA-256 over canonical manifest fields excluding the declared
+    id (self-reference impossible); NIST-vector-tested + BCrypt-cross-checked.
+  - **dc-pack** (deterministic pack; same input → same identity; no
+    timestamps/randomness/absolute paths in canonical bytes),
+    **dc-verify-package** (structured reason codes, fails closed),
+    **dc-packaged** (install / active / generations / rollback; CNG ECDSA
+    P-256 signing at the host layer with explicit `--allow-unsigned`
+    development policy — trust states distinguished, never conflated).
+  - **Library**: generations `gNNNN` fully materialized + byte-verified
+    before the atomic `active.json` pointer swap; failed install leaves the
+    previous generation active (tested); rollback metadata proven (tested);
+    **idempotent reinstall** (same identity+version no longer stacks
+    generations — fixed after live evidence, runtime-verified).
+  - **Registry integration**: `registry/tech.11vated.fidelitylab.title.json`
+    matches the package game_id; `LaunchTitle` resolves the installed
+    package FIRST (source-tree entrypoint is the documented development
+    fallback), runs host-profile preflight from package metadata, launches
+    the generation-view executable with the typed launch context (ADR-0024)
+    and lifecycle manifest carried through (§17).
+  - **§24 acceptance — the packaged artifact, not the source tree**:
+    CTest `package_library_install` fixture installs the real
+    `FidelityLab.11g` (containing the built D3D12 title) into the console
+    library; `session_shell_selftest` runs with `DC_LIBRARY_DIR` and proves:
+    packaged launch (`launched PACKAGED tech.11vated.fidelitylab g=…`) →
+    QR1 suspend/resume **ok/ok** (cold-start race in the supervisor fixed:
+    bounded window re-enumeration so Guide-at-launch cannot be lost) →
+    clean exit → SHELL_ACTIVE. `test_package_e2e` proves the full
+    pack→verify→install→activate→launch chain plus v0.1.0→v0.1.1 update and
+    corrupt-v0.1.2 fail-closed rollback (§25).
+  - **Save boundary (§18)** (`dc/save_boundary`): saves owned by
+    (user_id, game_id, save_schema); patch versions stay recognized;
+    incompatible schema requires explicit declared migration.
+  - Tests: `package_contract` (57 checks incl. SHA vectors, determinism,
+    rename-invariance, corruption battery, activation/rollback, save-compat),
+    `package_signing` (21 checks: sign/verify round-trip, tamper detection,
+    four trust states), `package_e2e` (11 checks) — **14/14 CTest**, 68/68
+    evidence/schema JSON valid.
 
 ## Known issues / environment
 
@@ -268,7 +310,27 @@ registry in `formats/profiles/` (DCP-2026-*, machine-readable). Governance:
 - D3D12 debug layer (Graphics Tools) not installed on DevKit-0 — diagnostics
   rely on HRESULT probes + info-queue drain when installed.
 
-## Validation commands
+## DK0-M3 validation matrix
+
+| Capability | Implemented | Unit | Integration | Runtime | Negative tested | Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| Package schema (dc.package/1) | yes | yes | yes | yes | yes | package_contract |
+| SHA-256 identity | yes | yes | yes | yes | yes (rename/mod) | package_contract |
+| Deterministic packaging | yes | yes | yes | yes | yes (byte-change) | package_contract |
+| Verification (reason codes) | yes | yes | yes | yes | yes (10 corruption cases) | package_contract, dc-verify-package |
+| Signature/trust | yes | yes | — | — | yes (tamper) | package_signing |
+| Content-addressed store | yes | yes | yes | yes | yes | package_contract |
+| Atomic install | yes | yes | yes | yes | yes (failed install) | package_contract, package_e2e |
+| Activation | yes | yes | yes | yes (shell) | yes | package_e2e, selftest |
+| Rollback | yes | yes | — | — | yes (corrupt v2 → v1 active) | package_e2e |
+| Registry integration | yes | — | yes | yes (packaged launch) | yes (missing exe) | selftest log |
+| Host-profile preflight | yes | — | yes | yes | yes (unsatisfied → refuse) | shell.cpp Preflight |
+| Lifecycle manifest | yes | yes | yes | yes (QR1 deadlines) | yes | lifecycle.json, selftest |
+| Save compatibility | yes | yes | — | — | yes (schema break) | package_contract |
+| Real package launch | yes | — | yes | yes (PACKAGED marker) | yes | package_e2e, selftest |
+| QR1 from package | yes | — | yes | yes (ok/ok) | yes | selftest log |
+
+## Known issues / environment
 
 ```bash
 cmake -S . -B build -G "Visual Studio 17 2022" -A x64
@@ -281,14 +343,13 @@ python scripts/validate/contract_tests.py
 
 ## Definition of next session
 
-1. **Post-reboot verification (both blockers clear on the same reboot)**:
-   - SAC: rerun `ctest --test-dir build -C Release --output-on-failure`
-     (7 tests incl. `session_shell_selftest`) — must pass without exit-126.
-   - Driver: re-test `gpu.rt_inline`, `gpu.rt_pipeline`, `dc-displayprobe`
-     (RESEARCH_LEDGER §23–§25 investigation timeline).
-2. Interactive shell full run: launch `dc-session --shell`, connect a
-   controller, execute the §36 controller-only acceptance walk (navigate →
-   launch title → Guide → resume → close → recover → exit), then §38
-   crash-recovery and §39 topology/input-loss reaction tests.
-3. Quiet-system `--qualify standard` on a non-OneDrive staging path →
-   DK0-M1 certification closure against the exit gate.
+1. **DK0-M4 — Fidelity Lab (VFR) seed**: consume the capability surfaces
+   (GetHostCapabilities / GetSessionCapabilities / capability-changed
+   subscriptions) with the first negotiated fidelity profile on the packaged
+   FidelityLab title.
+2. **Physical controller acceptance**: §36 controller-only walk against the
+   INSTALLED package (now the launch path), §38 input-loss reaction.
+3. **Post-reboot RT re-test**: `gpu.rt_inline`, `gpu.rt_pipeline`
+   (RESEARCH_LEDGER §24–§25) — the last DK0-M1 certification blocker.
+4. **Production signing policy**: trust anchor + key ceremony design for
+   signed packages (current: documented unsigned-development mode).

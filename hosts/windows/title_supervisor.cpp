@@ -270,15 +270,30 @@ private:
             ResetEvent(ack);
         }
 
-        // 1. Message channel to the title's windows (GUI path).
-        struct Ctx { WindowsTitleSupervisor* self; UINT msg; } ctx{this, msg};
-        EnumWindows([](HWND hwnd, LPARAM lp) -> BOOL {
-            auto* c = reinterpret_cast<Ctx*>(lp);
-            DWORD pid = 0;
-            GetWindowThreadProcessId(hwnd, &pid);
-            if (pid == c->self->proc_pid_) PostMessageW(hwnd, c->msg, 0, 0);
-            return TRUE;
-        }, reinterpret_cast<LPARAM>(&ctx));
+        // 1. Message channel to the title's windows (GUI path). A request
+        //    can legitimately arrive before the title has created its window
+        //    (e.g. Guide pressed at cold start); the window is re-enumerated
+        //    on a short grace loop so the delivery is not silently lost.
+        //    A title with no window ever created simply exhausts the grace —
+        //    the ACK wait then reports the outcome (see step 3).
+        struct Ctx { WindowsTitleSupervisor* self; UINT msg; DWORD sent; } ctx{this, msg, 0};
+        const ULONGLONG grace_deadline = GetTickCount64() + timeout_ms;
+        do {
+            ctx.sent = 0;
+            EnumWindows([](HWND hwnd, LPARAM lp) -> BOOL {
+                auto* c = reinterpret_cast<Ctx*>(lp);
+                DWORD pid = 0;
+                GetWindowThreadProcessId(hwnd, &pid);
+                if (pid == c->self->proc_pid_) {
+                    PostMessageW(hwnd, c->msg, 0, 0);
+                    ++c->sent;
+                }
+                return TRUE;
+            }, reinterpret_cast<LPARAM>(&ctx));
+            if (ctx.sent > 0) break;
+            if (GetTickCount64() >= grace_deadline) break;
+            Sleep(10);
+        } while (true);
 
         // 2. Job-wide event broadcast (windowless helper processes).
         HANDLE req = CreateEventW(nullptr, FALSE, FALSE, req_name);

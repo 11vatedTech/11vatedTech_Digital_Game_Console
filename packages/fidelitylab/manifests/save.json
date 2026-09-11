@@ -1,0 +1,6 @@
+{
+  "schema": "dc.save/1",
+  "save_schema": "s1",
+  "migratable_from": [],
+  "cloud_eligible": false
+}

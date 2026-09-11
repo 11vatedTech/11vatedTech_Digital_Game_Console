@@ -1,0 +1,23 @@
+{
+  "schema": "dc.lifecycle/1",
+  "title_id": "tech.11vated.fidelitylab",
+  "suspend_acknowledgement_deadline_ms": 1000,
+  "quick_resume_tier": "QR1",
+  "display_change_handling": "recreate_swapchain",
+  "audio_route_change_handling": "hot_switch",
+  "user_switching": false,
+  "network_reacquisition": false,
+  "memory_pressure_response": "reduce_cache",
+  "checkpoint": {
+    "format_version": "fl-ckpt/1",
+    "flushes_transactional_saves": true,
+    "max_checkpoint_bytes": 1048576
+  },
+  "exit_behavior": {
+    "flushes_saves": true,
+    "honors_exit_request": true,
+    "no_orphan_children": true,
+    "releases_devices": true,
+    "stops_network": true
+  }
+}
