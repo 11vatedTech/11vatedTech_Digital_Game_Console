@@ -535,6 +535,15 @@ LRESULT CALLBACK ShellWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 enum class View { Home, Library, System, Guide };
 
+// DK0-M4 §16: player experience intent — a POLICY input, never a graphics
+// preset. The runtime governor turns it into domain states from the
+// validated candidate set; the shell only collects it.
+constexpr int kIntentCount = 4;
+const char* kIntentNames[kIntentCount] = {
+    "Automatic", "Responsive", "Balanced", "Cinematic"};
+const char* kIntentValues[kIntentCount] = {
+    "AUTOMATIC", "RESPONSIVE", "BALANCED", "CINEMATIC"};
+
 constexpr int kGuideItems = 6;
 const char* kGuideLabels[kGuideItems] = {
     "Resume", "Home", "Close Game", "Controller", "Audio",
@@ -615,6 +624,13 @@ private:
     void PollInput(bool& quit);
     uint32_t KbdButtons();   // development fallback → semantic button mask
 
+    // DK0-M4 §16: intent picker lives on the Home view (focus id
+    // "home.intent"); cycles Automatic → Responsive → Balanced → Cinematic.
+    void CycleIntent();
+    const char* IntentValue() const {
+        return kIntentValues[intent_sel_ % kIntentCount];
+    }
+
     // Views ------------------------------------------------------------------
     void Navigate(uint32_t pressed);
     void Confirm();
@@ -648,6 +664,7 @@ private:
     View view_ = View::Home;
     FocusGraph fg_home_, fg_lib_, fg_sys_;
     int guide_sel_ = 0;
+    int intent_sel_ = 0;   // §16: Automatic is the default experience
     bool quit_requested_ = false;
     std::string toast_;
     ULONGLONG toast_until_ = 0;
@@ -811,8 +828,9 @@ bool ShellApp::Init() {
 
     // Focus graphs (§33): explicit topology, no implicit order.
     fg_home_.AddNode({"home.play", "", "", "", "home.library"});
-    fg_home_.AddNode({"home.library", "", "", "home.play", "home.system"});
-    fg_home_.AddNode({"home.system", "", "", "home.library", ""});
+    fg_home_.AddNode({"home.library", "", "", "home.play", "home.intent"});
+    fg_home_.AddNode({"home.intent", "", "", "home.library", "home.system"});
+    fg_home_.AddNode({"home.system", "", "", "home.intent", ""});
     fg_home_.SetCurrent("home.play");
     {
         const auto& titles = reg_.Entries();
@@ -920,6 +938,14 @@ void ShellApp::Navigate(uint32_t pressed) {
     if (pressed & (1u << (uint32_t)GamepadButton::South)) Confirm();
 }
 
+// DK0-M4 §16: cycle the experience intent. The shell NEVER maps this to
+// graphics settings — the governor owns that decision (§34 UX boundary).
+void ShellApp::CycleIntent() {
+    intent_sel_ = (intent_sel_ + 1) % kIntentCount;
+    toast_ = std::string("Experience: ") + kIntentNames[intent_sel_];
+    toast_until_ = GetTickCount64() + 2500;
+}
+
 void ShellApp::Confirm() {
     if (view_ == View::Home) {
         std::string cur = fg_home_.Current();
@@ -927,6 +953,8 @@ void ShellApp::Confirm() {
             LaunchTitle(reg_.Entries().front());
         } else if (cur == "home.library") {
             view_ = View::Library;
+        } else if (cur == "home.intent") {
+            CycleIntent();   // A on the intent tile cycles; no screen change
         } else if (cur == "home.system") {
             view_ = View::System;
         }
@@ -1022,6 +1050,8 @@ bool ShellApp::LaunchPackageTitle(const TitleEntry& e) {
         }
     }
     ctx.active_session_profiles = host_.dcx;
+    ctx.fidelity_intent = IntentValue();   // §16 player policy (shell collects,
+                                           // governor decides)
 
     // Working directory = the generation view so relative asset paths inside
     // the package resolve correctly (the package IS the install root).
@@ -1099,6 +1129,7 @@ bool ShellApp::LaunchTitle(const TitleEntry& e) {
         }
     }
     ctx.active_session_profiles = host_.dcx;  // currently proven DCX claims
+    ctx.fidelity_intent = IntentValue();      // §16 player policy
 
     auto launch = supervisor_->Launch(exe.string(), exe.parent_path().string(),
                                       "", ctx);
@@ -1258,6 +1289,22 @@ void ShellApp::Draw() {
             frame_.SafeText(t.x + 24, 578, t.label, 30,
                             on ? 0xFFFFFFFF : 0xFF9AAAC8);
         }
+        // DK0-M4 §16/§34: experience intent — the ONLY player-facing fidelity
+        // control. No per-domain quality menus, ever.
+        {
+            const bool on = fg_home_.Current() == "home.intent";
+            frame_.FillRect(kSafeX + 40, kSafeY + 684, 1280, 84,
+                            on ? 0xFF1E3A5F : 0xFF161C2A);
+            if (on) frame_.FillRect(kSafeX + 40, kSafeY + 684, 1280, 6,
+                                    0xFF38B6FF);
+            frame_.SafeText(64, 712, "Experience", 24, 0xFF8FB8E8);
+            frame_.SafeText(240, 706, kIntentNames[intent_sel_], 30,
+                            on ? 0xFFFFFFFF : 0xFF9AAAC8);
+            frame_.SafeText(900, 712,
+                            on ? "A change · the console tunes the game"
+                               : "the console tunes the game for you",
+                            19, 0xFF6878A0);
+        }
         if (!titles.empty())
             frame_.SafeText(40, 700, "Recent: " + titles.front().name +
                                       "  v" + titles.front().version,
@@ -1331,6 +1378,12 @@ void ShellApp::Draw() {
                  host_.runtime_ver + " · build " +
                      host_.build_hash.substr(0, std::min<size_t>(10, host_.build_hash.size())) +
                      " · " + host_.build_cfg);
+            // DK0-M4 §35: developer diagnostics (NOT player UX). The player
+            // sees only the Experience intent on Home; raw fidelity state is
+            // a System-view diagnostic line.
+            line("Experience intent", kIntentNames[intent_sel_]);
+            line("Fidelity", "dc.fidelity/1 · compiled candidate set · "
+                             "governor-owned selection");
         }
         // Focusable exit tile
         bool on = fg_sys_.Current() == "sys.exit_desktop";

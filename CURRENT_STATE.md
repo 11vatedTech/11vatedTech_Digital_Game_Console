@@ -1,6 +1,6 @@
 # CURRENT_STATE.md — 11vated Digital Console
 
-Last updated: 2026-09-10 (topology reaction + launch contract + input dedup)
+Last updated: 2026-09-12 (DK0-M4 fidelity stack: contract/compiler/governor/loader/service + packaged-title integration)
 
 ## Product purpose
 
@@ -329,6 +329,75 @@ registry in `formats/profiles/` (DCP-2026-*, machine-readable). Governance:
 | Save compatibility | yes | yes | — | — | yes (schema break) | package_contract |
 | Real package launch | yes | — | yes | yes (PACKAGED marker) | yes | package_e2e, selftest |
 | QR1 from package | yes | — | yes | yes (ok/ok) | yes | selftest log |
+
+## DK0-M4 — VFR seed (fidelity contract → compiler → governor → packaged title)
+
+**Status: IMPLEMENTED + UNIT/INTEGRATION-TESTED; GPU/visual leg BLOCKED_DRIVER**
+(ADR-0026; milestone status: `evidence/milestones/DK0-M4-status.json`).
+
+- **Contract (`dc.fidelity/1`)**: 7 real domains (internal_resolution,
+  geometry_density, shadow_quality, reflection_quality, volumetric_quality,
+  particle_density, simulation_quality) × discrete states with declared
+  costs + transition policies. Full rejection-reason validation; strict
+  serializer/parser round-trip.
+- **Compiler (`dc-fidelity-compile`)**: bounded enumeration (648 → 592
+  in-budget → 187 Pareto) from REAL host evidence (latest immutable
+  qualification run); byte-deterministic artifact; contract-SHA-256 binding
+  rejects stale artifacts; domain policies embedded. Budgets derived once in
+  the core (`BudgetFromHostEvidence`) and shared by tool + runtime.
+- **Governor**: hysteresis + dwell; **binding-axis step-down** (any-axis
+  lightness caused live Pareto ping-pong — fixed and regression-tested);
+  §23 transition legality (SCENE_BOUNDARY/RESTART_REQUIRED frozen at
+  runtime; sim-density change refused with visible evidence); intent changes
+  obey the same legality; reason-coded live decision trace.
+- **Package integration (§28)**: fidelity.json + compiled
+  fidelity.candidates.json ship INSIDE FidelityLab.11g; the runtime loads
+  them from the INSTALLED generation view (never the source tree). Envelope
+  carries `fidelity_intent` (shell Home tile cycles it; System view shows
+  developer diagnostics).
+- **Runtime verification (packaged artifact, g-generation views)**:
+  initial Pareto-optimum selection applied across all 7 domains; sustained
+  CPU-pressure harness stepped down through 3 monotonically lighter
+  candidates with reason-coded trace (`evidence/fidelity/m4-acceptance/`);
+  GPU telemetry honest-UNKNOWN (never fabricated).
+- **Device-removal hardening**: the title now checks Present/fence HRESULTs,
+  surfaces `GetDeviceRemovedReason` at the PSO checkpoint, and exits with
+  structured evidence (exit 3) instead of silently "rendering" on a dead
+  device. Explicit max-VRAM adapter selection (`DC_TITLE_GPU` override).
+
+### DK0-M4 validation matrix
+
+| Capability | Implemented | Unit | Integration | Runtime | Visual | Deterministic | Evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Fidelity schema (dc.fidelity/1) | yes | yes | yes | yes | — | yes | test_fidelity |
+| Domain/state validation | yes | yes | yes | — | — | yes | test_fidelity (§37 negatives) |
+| Compiler | yes | yes | yes | yes (real evidence) | — | yes (byte-identical) | test_fidelity, repeat-compile |
+| Pareto filtering | yes | yes | yes | yes | — | yes | test_fidelity |
+| Host budgets | yes | yes | yes | yes | — | yes | BudgetFromHostEvidence + run index |
+| Session budgets | yes (distinct axes) | yes | yes | — | — | yes | test_fidelity |
+| Candidate artifact | yes | yes | yes | yes (from package) | — | yes | fidelity_package |
+| Runtime governor | yes | yes | yes | yes (CPU axis) | — | yes | test_fidelity + m4-accept.log |
+| Hysteresis | yes | yes | — | yes | — | yes | test_fidelity, stress run |
+| Dwell time | yes | yes | — | yes | — | yes | test_fidelity, stress run |
+| Reason tracing | yes | yes | — | yes (live) | — | yes | m4-accept.log |
+| FidelityLab application | yes | — | yes | yes (7 domains) | **blocked** | yes | selftest + m4 logs |
+| Package integration | yes | — | yes | yes (generation view) | — | yes | fidelity_package |
+| Visual differences | yes | — | — | **BLOCKED_DRIVER** | **blocked** | — | m4-bisect.log |
+| Pressure adaptation | yes | yes | — | yes (CPU axis) | — | yes | m4-accept.log trace |
+
+### M4 driver blocker (M1-F classification)
+
+`DXGI_ERROR_DEVICE_HUNG` (0x887A0001) asynchronously during/after
+runtime-compiled shader **PSO creation** — reproduced on BOTH adapters
+(NVIDIA RTX 5070 Ti 32.0.16.1078; Intel Graphics 32.0.101.6629); device
+healthy through every init step incl. all 3 PSO creations, removal observed
+at the next CPU-side call. `dc-displayprobe` (no PSOs, real GPU submissions)
+remains healthy on the same NVIDIA adapter. One controlled reproduction +
+bisect only (M1-F discipline). Evidence:
+`evidence/fidelity/m4-acceptance/m4-{bisect,gpu,intel,final}.log`.
+Consequence: GPU timestamp telemetry + visual-difference proof remain
+UNAVAILABLE/BLOCKED_DRIVER; the governor's CPU-axis loop is real and
+measured; UNKNOWN is never fabricated.
 
 ## Known issues / environment
 

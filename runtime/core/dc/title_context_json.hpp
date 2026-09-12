@@ -41,6 +41,9 @@ inline std::string SerializeTitleContext(const TitleLaunchContext& c) {
     o += c.guide_owned_by_platform ? "true" : "false";
     o += ",\"offline_launch\":";
     o += c.offline_launch ? "true" : "false";
+    o += ",\"fidelity_intent\":\"";
+    o += c.fidelity_intent;
+    o += "\"";
     o += ",\"active_session_profiles\":[";
     for (size_t i = 0; i < c.active_session_profiles.size(); ++i) {
         if (i) o += ',';
@@ -103,6 +106,7 @@ inline bool ParseTitleContext(const std::string& text, TitleLaunchContext& out,
     get_bool("controller_required", c.controller_required);
     get_bool("guide_owned_by_platform", c.guide_owned_by_platform);
     get_bool("offline_launch", c.offline_launch);
+    get_str("fidelity_intent", c.fidelity_intent);
 
     if (const json::Value* a = v->find("active_session_profiles")) {
         for (const auto& e : a->as_array())

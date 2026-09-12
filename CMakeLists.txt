@@ -32,6 +32,11 @@ add_library(dc_core STATIC
     runtime/core/dc/package_container.cpp
     runtime/core/dc/package_store.cpp
     runtime/core/dc/save_boundary.cpp
+    runtime/core/dc/fidelity.cpp
+    runtime/core/dc/fidelity_compiler.cpp
+    runtime/core/dc/fidelity_governor.cpp
+    runtime/core/dc/fidelity_loader.cpp
+    runtime/core/dc/fidelity_service.cpp
 )
 target_include_directories(dc_core PUBLIC runtime/core)
 target_compile_features(dc_core PUBLIC cxx_std_23)
@@ -107,6 +112,8 @@ if (WIN32)
     # -----------------------------------------------------------------------
     add_executable(dc-pack tools/pack/main.cpp)
     target_link_libraries(dc-pack PRIVATE dc_core dc_host_windows)
+    add_executable(dc-fidelity-compile tools/fidelity-compile/main.cpp)
+    target_link_libraries(dc-fidelity-compile PRIVATE dc_core)
 
     add_executable(dc-verify-package tools/verify-package/main.cpp)
     target_link_libraries(dc-verify-package PRIVATE dc_core dc_host_windows)
@@ -201,4 +208,12 @@ if (WIN32)
     target_link_libraries(test_package_e2e PRIVATE dc_core dc_host_windows)
     add_test(NAME package_e2e COMMAND test_package_e2e WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
     set_tests_properties(package_e2e PROPERTIES DEPENDS dc-verify-package)
+
+    # DK0-M4: fidelity contract/compiler/governor units + package integration.
+    add_executable(test_fidelity tests/contract/test_fidelity.cpp)
+    target_link_libraries(test_fidelity PRIVATE dc_core)
+    add_test(NAME fidelity_contract COMMAND test_fidelity)
+    add_executable(test_fidelity_package tests/contract/test_fidelity_package.cpp)
+    target_link_libraries(test_fidelity_package PRIVATE dc_core)
+    add_test(NAME fidelity_package COMMAND test_fidelity_package)
 endif()

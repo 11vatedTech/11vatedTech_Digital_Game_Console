@@ -36,7 +36,7 @@ lifecycle:
       EVIDENCE_POLICY.md + dc-stage-certification staging tool with thermal
       guardrails (first staged run 2026-09-08T05_36_52Z)
     - ADR-0023 milestone status vocabulary — DK0-M1 IMPLEMENTATION CLOSED;
-      DevKit-0 certification: presentation/VRR unblocked 2026-09-10
+      DevKit-0 certification — presentation/VRR unblocked 2026-09-10
       (displayprobe device→queue fix; VRR ACTIVELY PROVEN on dGPU),
       quiet-system standard run captured with valid sustained windows
       (run 2026-09-10T02_11_25Z_standard); remaining certification block is
@@ -90,7 +90,14 @@ milestones:
     # documented); §36 controller walk against the installed package.
   - id: DK0-M4
     name: Fidelity Lab (VFR proof)
-    status: pending
+    status: implemented  # 2026-09-12: ADR-0026 fidelity stack (contract,
+    # compiler 648→592→187 Pareto byte-deterministic, binding-axis governor,
+    # package-view loader, intent in shell). Packaged-title runtime verified
+    # on the CPU axis (real QPC telemetry, reason-coded adaptation); GPU/
+    # visual leg BLOCKED_DRIVER (PSO-path TDR, both adapters — see
+    # evidence/milestones/DK0-M4-status.json). 16/16 CTest.
+    # remainder = GPU-path + visual verification after driver stack allows
+    # shader-PSO workloads; controller intent walk (§36).
   - id: DK0-M5
     name: Certification runner
     status: pending

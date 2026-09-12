@@ -1,0 +1,67 @@
+{
+  "schema": "dc.milestone-status/1",
+  "milestone": "DK0-M4",
+  "generated_utc": "2026-09-12T06:20:00Z",
+  "title": "VFR seed — fidelity contract, compiler, governor, packaged-title integration",
+  "implementation_state": "IMPLEMENTED",
+  "verification_state": "UNIT_TESTED_INTEGRATION_TESTED",
+  "certification_state": "BLOCKED_DRIVER_GPU_PATH",
+  "fidelity_contract_state": "IMPLEMENTED_UNIT_TESTED",
+  "compiler_state": "IMPLEMENTED_UNIT_TESTED_RUNTIME_MEASURED",
+  "governor_state": "IMPLEMENTED_UNIT_TESTED_RUNTIME_VERIFIED_CPU_AXIS",
+  "package_integration_state": "RUNTIME_VERIFIED",
+  "runtime_adaptation_state": "RUNTIME_VERIFIED_CPU_PRESSURE",
+  "visual_verification_state": "BLOCKED_DRIVER",
+  "compiler_stats": {
+    "enumerated_combinations": 648,
+    "within_budget": 592,
+    "pareto_candidates": 187,
+    "deterministic_identity": "byte-identical artifact across repeated compiles (SHA-256 verified)",
+    "budget_source": "latest immutable qualification run host-capability.json (gpu 14.83 ms / cpu 14.17 ms / vram 9555 MB; io UNKNOWN retained)"
+  },
+  "verified_items": [
+    "dc.fidelity/1 contract parse/serialize with all §37 rejection reasons",
+    "deterministic bounded compilation (648→592→187, byte-identical repeats)",
+    "Pareto dominance filtering with UNKNOWN-axis semantics (§17: unknown never accused)",
+    "governor hysteresis + dwell + binding-axis step-down (no oscillation, §39)",
+    "transition legality (§23): SCENE_BOUNDARY and RESTART_REQUIRED domains frozen at runtime; sim-density change refused with visible evidence",
+    "candidate artifact ↔ contract SHA-256 binding (§29 stale-artifact rejection)",
+    "package-view loader: fidelity.json + fidelity.candidates.json loaded from INSTALLED generation view, never source tree (§28)",
+    "host budgets derived from real qualification evidence, shared derivation between compiler tool and runtime",
+    "package build → verify → install → activate → shell launch → governor initial selection → applied states",
+    "CPU-pressure adaptation: sustained overload stepped down through 3 monotonically lighter candidates with reason-coded trace (m4-accept.log)",
+    "intent vocabulary (AUTOMATIC default) transported through dc.title-context/1; shell Home tile cycles intent; System view shows developer diagnostics",
+    "device-removal fail-fast: Present/fence HRESULT checks, structured exit evidence (exit 3), no silent fake rendering"
+  ],
+  "blocked_items": [
+    {
+      "item": "gpu_path_visual_verification",
+      "state": "BLOCKED_DRIVER",
+      "detail": "DXGI_ERROR_DEVICE_HUNG (0x887A0001) asynchronously during/after runtime-compiled shader PSO creation, reproduced on BOTH adapters (NVIDIA RTX 5070 Ti driver 32.0.16.1078; Intel Graphics driver 32.0.101.6629). Bisect: device healthy through all init steps including all 3 PSO creations (GetDeviceRemovedReason=0x00000000 immediately after), removal observed at the next CPU-side call. dc-displayprobe (no PSOs, real GPU submissions) remains healthy on the same NVIDIA adapter. Classification: BLOCKED_DRIVER (graphics-PSO path), one controlled reproduction + bisect per M1-F discipline.",
+      "evidence_refs": [
+        "evidence/fidelity/m4-acceptance/m4-bisect.log",
+        "evidence/fidelity/m4-acceptance/m4-gpu.log",
+        "evidence/fidelity/m4-acceptance/m4-intel.log",
+        "evidence/fidelity/m4-acceptance/m4-final.log"
+      ]
+    },
+    {
+      "item": "gpu_timestamp_telemetry",
+      "state": "UNAVAILABLE",
+      "detail": "QueryHeap/readback creation fails with DXGI_ERROR_DEVICE_REMOVED after the TDR; gpu_ms stays Metric::Unknown and is never fabricated (§10/§17). Governor adaptation proven on the CPU axis with real QPC frame timing."
+    }
+  ],
+  "tests": {
+    "fidelity_contract_suite": "61 checks, 0 failures (tests/contract/test_fidelity.cpp)",
+    "fidelity_package_suite": "25 checks, 0 failures (tests/contract/test_fidelity_package.cpp)",
+    "ctest": "16/16 passed",
+    "contract_gate": "all contract tests passed"
+  },
+  "notes": "The M4 fidelity loop is real and evidence-backed end to end EXCEPT the GPU-measured/visual leg, which is blocked by the same driver stack that blocks M1 RT measurement. Governor decisions used CPU telemetry (real, measured) with GPU/VRAM/IO UNKNOWN — the honest reduced case. No source-tree fidelity file is consulted by the packaged acceptance path.",
+  "evidence_refs": [
+    "evidence/fidelity/m4-acceptance/",
+    "evidence/qualification/runs/ (host budget source)",
+    "packages/fidelitylab/content/manifests/fidelity.json",
+    "packages/fidelitylab/content/manifests/fidelity.candidates.json"
+  ]
+}

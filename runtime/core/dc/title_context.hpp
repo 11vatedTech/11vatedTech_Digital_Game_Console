@@ -51,6 +51,12 @@ struct TitleLaunchContext {
     bool controller_required = true;
     bool guide_owned_by_platform = true;
     bool offline_launch = true;        // C9: local-first session
+
+    // Fidelity intent (DK0-M4 §16): player semantic policy, NOT a graphics
+    // preset. One of "AUTOMATIC" (default), "RESPONSIVE", "BALANCED",
+    // "CINEMATIC". The runtime governor — never the title — turns this into
+    // concrete domain states from the validated candidate set.
+    std::string fidelity_intent = "AUTOMATIC";
 };
 
 } // namespace dc
